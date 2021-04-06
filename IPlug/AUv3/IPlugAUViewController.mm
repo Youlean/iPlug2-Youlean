@@ -37,6 +37,16 @@
   return self;
 }
 
+- (void)viewWillLayoutSubviews
+{
+  CGRect drawableRect;
+  drawableRect.size = self.view.bounds.size;
+  
+  [_audioUnit resize:drawableRect.size];
+
+  [super viewWillLayoutSubviews];
+}
+
 - (void) viewDidLoad
 {
   [super viewDidLoad];
@@ -56,6 +66,7 @@
     int viewWidth = (int) [self.audioUnit width];
     int viewHeight = (int) [self.audioUnit height];
     self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
+    self.view.backgroundColor = UIColor.blackColor;
   }
 }
 
@@ -68,6 +79,7 @@
     [self.audioUnit closeWindow];
   }
 }
+
 #else // PLUG_HAS_UI==0
 
 - (void) beginRequestWithExtensionContext:(nonnull NSExtensionContext*) context

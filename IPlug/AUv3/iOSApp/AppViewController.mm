@@ -79,14 +79,11 @@
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
 }
 
--(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-{
-  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
-  [au resize:CGSizeMake (size.width, size.height)];
-
-  [iplugViewController viewDidDisappear:false];
-  [iplugViewController viewWillAppear:false];
-}
+//-(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+//{
+//  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+//  [au resize:CGSizeMake (size.width, size.height)];
+//}
 
 -(void) receiveNotification:(NSNotification*) notification
 {
@@ -115,7 +112,7 @@
   UIView* view = iplugViewController.view;
   view.frame = auView.bounds;
   [auView addSubview: view];
-  
+
   view.translatesAutoresizingMaskIntoConstraints = NO;
 
   NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"H:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
@@ -123,7 +120,13 @@
 
   constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
   [auView addConstraints: constraints];
+
 #endif
+}
+
+- (void)viewWillLayoutSubviews
+{
+  [super viewWillLayoutSubviews];
 }
 
 - (UIRectEdge) preferredScreenEdgesDeferringSystemGestures

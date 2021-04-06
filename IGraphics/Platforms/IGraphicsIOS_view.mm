@@ -219,6 +219,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return self;
 }
 
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+}
+
 - (void) setFrame:(CGRect) frame
 {
   [super setFrame:frame];
@@ -232,6 +237,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   #ifdef IGRAPHICS_METAL
   CGSize drawableSize = self.bounds.size;
+  
+  mMTLLayer.frame = self.bounds;
   
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
   drawableSize.width *= scale;

@@ -812,7 +812,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent
 {
   PLATFORM_VIEW* pView = (__bridge PLATFORM_VIEW*) mPlug->OpenWindow((__bridge void*) pParent);
-
+  
   return pView;
 }
 
@@ -823,7 +823,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (void)resize: (CGSize) size
 {
   if (mPlug->GetUI())
-    mPlug->GetUI()->Resize(size.width, size.height, 1);
+  {
+    PLATFORM_VIEW* pView = (__bridge PLATFORM_VIEW*)mPlug->GetUI()->GetWindow();
+    
+    CGRect r = pView.frame;
+    r.size = size;
+    
+    [pView setFrame:(CGRect) r];
+    mPlug->GetUI()->Resize(size.width, size.height, mPlug->GetUI()->GetDrawScale());
+  }
 }
 
 - (NSInteger)width

@@ -5,6 +5,7 @@ config = {}
 StringElements = {
 "PLUG_VERSION_HEX",
 "PLUG_NAME",
+"PLUG_NAME_IOS",
 "PLUG_MFR",
 "BUNDLE_MFR",
 "BUNDLE_NAME",
