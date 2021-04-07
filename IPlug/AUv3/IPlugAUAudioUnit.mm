@@ -830,7 +830,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     r.size = size;
     
     [pView setFrame:(CGRect) r];
-    mPlug->GetUI()->Resize(size.width, size.height, mPlug->GetUI()->GetDrawScale());
+    mPlug->GetUI()->Resize(size.width, size.height, 1);//mPlug->GetUI()->GetDrawScale());
   }
 }
 
