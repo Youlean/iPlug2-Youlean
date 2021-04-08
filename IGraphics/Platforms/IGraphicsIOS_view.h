@@ -69,6 +69,7 @@ using namespace igraphics;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
   float mPrevX, mPrevY;
+  UIInterfaceOrientation mOrientation;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;

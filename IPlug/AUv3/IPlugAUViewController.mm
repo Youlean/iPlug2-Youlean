@@ -47,6 +47,16 @@
   [super viewWillLayoutSubviews];
 }
 
+-(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+  [super viewWillTransitionToSize: size withTransitionCoordinator: coordinator];
+  
+  [coordinator animateAlongsideTransition: nil completion: ^void (id<UIViewControllerTransitionCoordinatorContext>)
+   {
+    [self.audioUnit layoutUI];
+  }];
+}
+
 - (void) viewDidLoad
 {
   [super viewDidLoad];

@@ -278,34 +278,37 @@ IRECT IGraphicsIOS::GetSafeDrawArea()
     {
       IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
     
-      UIInterfaceOrientation orientation = [pView.window.windowScene interfaceOrientation];
-      
-      CGFloat topPadding = pView.safeAreaInsets.top;
-      CGFloat bottomPadding = pView.safeAreaInsets.bottom;
-      
-      CGFloat leftPadding = pView.safeAreaInsets.left;
-      CGFloat rightPadding = pView.safeAreaInsets.right;
-      
-      if(orientation == UIInterfaceOrientationPortrait) // Device oriented vertically, home button on the bottom
+      if (pView && pView.window && pView.window.windowScene)
       {
-        bottomPadding = 0;
+        UIInterfaceOrientation orientation = [pView.window.windowScene interfaceOrientation];
+        
+        CGFloat topPadding = pView.safeAreaInsets.top;
+        CGFloat bottomPadding = pView.safeAreaInsets.bottom;
+        
+        CGFloat leftPadding = pView.safeAreaInsets.left;
+        CGFloat rightPadding = pView.safeAreaInsets.right;
+        
+        if(orientation == UIInterfaceOrientationPortrait) // Device oriented vertically, home button on the bottom
+        {
+          bottomPadding = 0;
+        }
+        else if(orientation == UIInterfaceOrientationPortraitUpsideDown) // Device oriented vertically, home button on the top
+        {
+          topPadding = 0;
+        }
+        else if(orientation == UIInterfaceOrientationLandscapeRight) // Device oriented horizontally, home button on the right
+        {
+          rightPadding = 0;
+          bottomPadding = 0;
+        }
+        else if(orientation == UIInterfaceOrientationLandscapeLeft) // Device oriented horizontally, home button on the left
+        {
+          leftPadding = 0;
+          bottomPadding = 0;
+        }
+        
+        r.Pad(-leftPadding / GetDrawScale(), -topPadding / GetDrawScale(), -rightPadding / GetDrawScale(), -bottomPadding / GetDrawScale());
       }
-      else if(orientation == UIInterfaceOrientationPortraitUpsideDown) // Device oriented vertically, home button on the top
-      {
-        topPadding = 0;
-      }
-      else if(orientation == UIInterfaceOrientationLandscapeRight) // Device oriented horizontally, home button on the right
-      {
-        rightPadding = 0;
-        bottomPadding = 0;
-      }
-      else if(orientation == UIInterfaceOrientationLandscapeLeft) // Device oriented horizontally, home button on the left
-      {
-        leftPadding = 0;
-        bottomPadding = 0;
-      }
-      
-      r.Pad(-leftPadding, -topPadding, -rightPadding, -bottomPadding);
     }
   }
 #endif

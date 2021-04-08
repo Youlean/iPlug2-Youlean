@@ -79,27 +79,18 @@
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
 }
 
-//- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-//{
-//  [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context)
-//  {
-//
-//  }
-//
-//  completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context)
-//  {
-//    IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
-//    [au layoutUI];
-//  }];
-//}
-
-//-(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-//{
-//  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
-////  [au resize:CGSizeMake (size.width, size.height)];
-//  [au layoutUI];
-//  self.interfaceOrientation;
-//}
+-(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+  //  [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {}
+  
+  [super viewWillTransitionToSize: size withTransitionCoordinator: coordinator];
+  
+  [coordinator animateAlongsideTransition: nil completion: ^void (id<UIViewControllerTransitionCoordinatorContext>)
+   {
+    IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+    [au layoutUI];
+  }];
+}
 
 -(void) receiveNotification:(NSNotification*) notification
 {

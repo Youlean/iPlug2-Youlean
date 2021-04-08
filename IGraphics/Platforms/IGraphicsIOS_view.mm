@@ -215,6 +215,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
+  
   mColorPickerHandlerFunc = nullptr;
   
   return self;
@@ -353,6 +354,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if(mGraphics)
   {
     mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
+    
+    // Layout UI if the orientation has changed
+    if (self.window && self.window.windowScene)
+    {
+      UIInterfaceOrientation orientation = [self.window.windowScene interfaceOrientation];
+      
+      if (mOrientation != orientation)
+      {
+        mOrientation = orientation;
+        mGraphics->GetDelegate()->LayoutUI(mGraphics);
+      }
+    }
     
     if (mGraphics->IsDirty(rects))
     {
