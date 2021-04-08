@@ -267,6 +267,52 @@ void* IGraphicsIOS::GetWindow()
     return 0;
 }
 
+IRECT IGraphicsIOS::GetSafeDrawArea()
+{
+  IRECT r(0, 0, Width(), Height());
+  
+#ifdef OS_IOS
+  if(mView)
+  {
+    if (@available(iOS 13.0, *))
+    {
+      IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    
+      UIInterfaceOrientation orientation = [pView.window.windowScene interfaceOrientation];
+      
+      CGFloat topPadding = pView.safeAreaInsets.top;
+      CGFloat bottomPadding = pView.safeAreaInsets.bottom;
+      
+      CGFloat leftPadding = pView.safeAreaInsets.left;
+      CGFloat rightPadding = pView.safeAreaInsets.right;
+      
+      if(orientation == UIInterfaceOrientationPortrait) // Device oriented vertically, home button on the bottom
+      {
+        bottomPadding = 0;
+      }
+      else if(orientation == UIInterfaceOrientationPortraitUpsideDown) // Device oriented vertically, home button on the top
+      {
+        topPadding = 0;
+      }
+      else if(orientation == UIInterfaceOrientationLandscapeRight) // Device oriented horizontally, home button on the right
+      {
+        rightPadding = 0;
+        bottomPadding = 0;
+      }
+      else if(orientation == UIInterfaceOrientationLandscapeLeft) // Device oriented horizontally, home button on the left
+      {
+        leftPadding = 0;
+        bottomPadding = 0;
+      }
+      
+      r.Pad(-leftPadding, -topPadding, -rightPadding, -bottomPadding);
+    }
+  }
+#endif
+  
+  return r;
+}
+
 // static
 int IGraphicsIOS::GetUserOSVersion()
 {

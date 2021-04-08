@@ -214,6 +214,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
   mColorPickerHandlerFunc = nullptr;
   
   return self;
@@ -222,6 +223,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (void)layoutSubviews
 {
   [super layoutSubviews];
+}
+
+- (void) orientationChanged:(NSNotification *)note
+{
+  mGraphics->GetDelegate()->LayoutUI(mGraphics);
 }
 
 - (void) setFrame:(CGRect) frame

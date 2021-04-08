@@ -834,6 +834,12 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void) layoutUI
+{
+  if (mPlug->GetUI())
+    mPlug->GetUI()->GetDelegate()->LayoutUI(mPlug->GetUI());
+}
+
 - (NSInteger)width
 {
   return mPlug->GetEditorWidth();

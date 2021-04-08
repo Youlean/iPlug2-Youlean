@@ -55,6 +55,7 @@ public:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
   void* GetWindow() override;
+  IRECT GetSafeDrawArea() override;
   
   const char* GetBundleID() override { return mBundleID.Get(); }
   static int GetUserOSVersion();

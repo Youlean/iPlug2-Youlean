@@ -823,6 +823,9 @@ public:
   /** Get a pointer to the platform view e.g. HWND or NSView for this graphics context
    * return void pointer to platform window or view handle */
   virtual void* GetWindow() = 0;
+  
+  /** Get a safe area of the windwo. This will account for the notch on iPhone */
+  virtual IRECT GetSafeDrawArea() { return IRECT(0, 0, Width(), Height()); }
 
   /** @return /c true if the platform window/view is open */
   virtual bool WindowIsOpen() { return GetWindow(); }
@@ -1753,6 +1756,7 @@ private:
   int mFPS;
   float mScreenScale = 1.f; // the scaling of the display that the UI is currently on e.g. 2 for retina
   float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
+  IRECT mSafeDrawArea;
 
   int mIdleTicks = 0;
   
