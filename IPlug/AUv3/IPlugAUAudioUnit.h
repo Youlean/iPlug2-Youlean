@@ -30,7 +30,7 @@
 - (NSInteger) width;
 - (NSInteger) height;
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
-- (void)resize: (CGSize) size;
+- (void)resize: (CGRect) rect;
 - (void) layoutUI;
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;

@@ -960,9 +960,9 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
         {
             auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
                 uint32_t modifiers = 0;
-                
+
                 if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-                
+
 #ifdef OS_WIN
                 if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
@@ -971,10 +971,10 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #endif
                 if (mod.S) modifiers |= AAX_eModifiers_Shift;
                 if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
-                
+
                 return modifiers;
             };
-            
+
             uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
 #ifdef OS_WIN
             // required to get start/windows and alt keys
@@ -984,7 +984,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #endif
             WDL_String paramID;
             paramID.SetFormatted(32, "%i", paramIdx+1);
-            
+
             if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
             {
                 return; // event handled by PT

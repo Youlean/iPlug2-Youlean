@@ -40,12 +40,17 @@
 - (void)viewWillLayoutSubviews
 {
   CGRect drawableRect;
-  drawableRect.size = self.view.bounds.size;
+  drawableRect = self.view.bounds;
   
-  [_audioUnit resize:drawableRect.size];
-
+  [_audioUnit resize:drawableRect];
+  
   [super viewWillLayoutSubviews];
 }
+
+//- (void)viewDidLayoutSubviews
+//{
+//  [super viewDidLayoutSubviews];
+//}
 
 -(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {

@@ -223,11 +223,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void)layoutSubviews
 {
+  [UIView setAnimationsEnabled:NO];
   [super layoutSubviews];
 }
 
 - (void) orientationChanged:(NSNotification *)note
 {
+  [UIView setAnimationsEnabled:NO];
   mGraphics->GetDelegate()->LayoutUI(mGraphics);
 }
 
@@ -243,9 +245,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     scale = self.window.screen.scale;
   
   #ifdef IGRAPHICS_METAL
-  CGSize drawableSize = self.bounds.size;
+  CGSize drawableSize = frame.size;//self.bounds.size;
   
-  mMTLLayer.frame = self.bounds;
+  //mMTLLayer.frame.origin = self.bounds.origin;
+  //mMTLLayer.frame.size = self.bounds.size;
+  mMTLLayer.frame = frame;
+
   
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
   drawableSize.width *= scale;

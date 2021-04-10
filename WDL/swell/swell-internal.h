@@ -197,7 +197,7 @@ typedef struct WindowPropRec
 -(void) dealloc;
 -(bool) findItem:(HTREEITEM)item parOut:(HTREEITEM__ **)par idxOut:(int *)idx;
 -(void)mouseDown:(NSEvent *)theEvent;
--(void)mouseDragged:(NSEvent *)theEvent;
+-(void)gestureDragged:(NSEvent *)theEvent;
 -(void)mouseUp:(NSEvent *)theEvent;
 - (void)rightMouseUp:(NSEvent *)theEvent;
 - (void)highlightSelectionInClipRect:(NSRect)theClipRect;
