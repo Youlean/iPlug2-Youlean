@@ -255,10 +255,22 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int c = GetUI()->GetMouseControlIdx(x, y, true);
-    
+
+    IControl* pControl = nullptr;
+
+    if (c > 0)
+    {
+      pControl = GetUI()->GetControl(c);
+
+      if (!pControl->IsHit(x, y))
+        c = -1;
+    }
+
     if (c > 0)
     {
       IControl* pControl = GetUI()->GetControl(c);
+
+
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
 
@@ -484,7 +496,7 @@ public:
         g.DrawDottedRect(COLOR_GREEN, cr);
       else
         g.DrawDottedRect(COLOR_BLUE, cr);
-      
+
       IRECT h = GetHandleRect(cr);
       g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
       g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);

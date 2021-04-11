@@ -1017,21 +1017,21 @@ bool YGLayoutNodeInternal(
     const uint32_t depth,
     const uint32_t generationCount);
 
-#ifdef DEBUG
-static void YGNodePrintInternal(
-    const YGNodeRef node,
-    const YGPrintOptions options) {
-  std::string str;
-  facebook::yoga::YGNodeToString(str, node, options, 0);
-  Log::log(node, YGLogLevelDebug, nullptr, str.c_str());
-}
-
-YOGA_EXPORT void YGNodePrint(
-    const YGNodeRef node,
-    const YGPrintOptions options) {
-  YGNodePrintInternal(node, options);
-}
-#endif
+//#ifdef DEBUG
+//static void YGNodePrintInternal(
+//    const YGNodeRef node,
+//    const YGPrintOptions options) {
+//  std::string str;
+//  facebook::yoga::YGNodeToString(str, node, options, 0);
+//  Log::log(node, YGLogLevelDebug, nullptr, str.c_str());
+//}
+//
+//YOGA_EXPORT void YGNodePrint(
+//    const YGNodeRef node,
+//    const YGPrintOptions options) {
+//  YGNodePrintInternal(node, options);
+//}
+//#endif
 
 const std::array<YGEdge, 4> leading = {
     {YGEdgeTop, YGEdgeBottom, YGEdgeLeft, YGEdgeRight}};
@@ -3893,50 +3893,50 @@ bool YGLayoutNodeInternal(
     (performLayout ? layoutMarkerData.cachedLayouts
                    : layoutMarkerData.cachedMeasures) += 1;
 
-    if (gPrintChanges && gPrintSkips) {
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "%s%d.{[skipped] ",
-          YGSpacer(depth),
-          depth);
-      node->print(layoutContext);
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "wm: %s, hm: %s, aw: %f ah: %f => d: (%f, %f) %s\n",
-          YGMeasureModeName(widthMeasureMode, performLayout),
-          YGMeasureModeName(heightMeasureMode, performLayout),
-          availableWidth,
-          availableHeight,
-          cachedResults->computedWidth,
-          cachedResults->computedHeight,
-          LayoutPassReasonToString(reason));
-    }
-  } else {
-    if (gPrintChanges) {
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "%s%d.{%s",
-          YGSpacer(depth),
-          depth,
-          needToVisitNode ? "*" : "");
-      node->print(layoutContext);
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "wm: %s, hm: %s, aw: %f ah: %f %s\n",
-          YGMeasureModeName(widthMeasureMode, performLayout),
-          YGMeasureModeName(heightMeasureMode, performLayout),
-          availableWidth,
-          availableHeight,
-          LayoutPassReasonToString(reason));
-    }
+//    if (gPrintChanges && gPrintSkips) {
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "%s%d.{[skipped] ",
+//          YGSpacer(depth),
+//          depth);
+//      node->print(layoutContext);
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "wm: %s, hm: %s, aw: %f ah: %f => d: (%f, %f) %s\n",
+//          YGMeasureModeName(widthMeasureMode, performLayout),
+//          YGMeasureModeName(heightMeasureMode, performLayout),
+//          availableWidth,
+//          availableHeight,
+//          cachedResults->computedWidth,
+//          cachedResults->computedHeight,
+//          LayoutPassReasonToString(reason));
+//    }
+//  } else {
+//    if (gPrintChanges) {
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "%s%d.{%s",
+//          YGSpacer(depth),
+//          depth,
+//          needToVisitNode ? "*" : "");
+//      node->print(layoutContext);
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "wm: %s, hm: %s, aw: %f ah: %f %s\n",
+//          YGMeasureModeName(widthMeasureMode, performLayout),
+//          YGMeasureModeName(heightMeasureMode, performLayout),
+//          availableWidth,
+//          availableHeight,
+//          LayoutPassReasonToString(reason));
+//    }
 
     YGNodelayoutImpl(
         node,
@@ -3955,27 +3955,27 @@ bool YGLayoutNodeInternal(
         generationCount,
         reason);
 
-    if (gPrintChanges) {
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "%s%d.}%s",
-          YGSpacer(depth),
-          depth,
-          needToVisitNode ? "*" : "");
-      node->print(layoutContext);
-      Log::log(
-          node,
-          YGLogLevelVerbose,
-          nullptr,
-          "wm: %s, hm: %s, d: (%f, %f) %s\n",
-          YGMeasureModeName(widthMeasureMode, performLayout),
-          YGMeasureModeName(heightMeasureMode, performLayout),
-          layout->measuredDimensions[YGDimensionWidth],
-          layout->measuredDimensions[YGDimensionHeight],
-          LayoutPassReasonToString(reason));
-    }
+//    if (gPrintChanges) {
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "%s%d.}%s",
+//          YGSpacer(depth),
+//          depth,
+//          needToVisitNode ? "*" : "");
+//      node->print(layoutContext);
+//      Log::log(
+//          node,
+//          YGLogLevelVerbose,
+//          nullptr,
+//          "wm: %s, hm: %s, d: (%f, %f) %s\n",
+//          YGMeasureModeName(widthMeasureMode, performLayout),
+//          YGMeasureModeName(heightMeasureMode, performLayout),
+//          layout->measuredDimensions[YGDimensionWidth],
+//          layout->measuredDimensions[YGDimensionHeight],
+//          LayoutPassReasonToString(reason));
+//    }
 
     layout->lastOwnerDirection = ownerDirection;
 
@@ -4214,15 +4214,15 @@ YOGA_EXPORT void YGNodeCalculateLayoutWithContext(
         node->getLayout().direction(), ownerWidth, ownerHeight, ownerWidth);
     YGRoundToPixelGrid(node, node->getConfig()->pointScaleFactor, 0.0f, 0.0f);
 
-#ifdef DEBUG
-    if (node->getConfig()->printTree) {
-      YGNodePrint(
-          node,
-          (YGPrintOptions)(
-              YGPrintOptionsLayout | YGPrintOptionsChildren |
-              YGPrintOptionsStyle));
-    }
-#endif
+//#ifdef DEBUG
+//    if (node->getConfig()->printTree) {
+//      YGNodePrint(
+//          node,
+//          (YGPrintOptions)(
+//              YGPrintOptionsLayout | YGPrintOptionsChildren |
+//              YGPrintOptionsStyle));
+//    }
+//#endif
   }
 
   Event::publish<Event::LayoutPassEnd>(node, {layoutContext, &markerData});
@@ -4276,15 +4276,15 @@ YOGA_EXPORT void YGNodeCalculateLayoutWithContext(
           !nodeWithoutLegacyFlag->isLayoutTreeEqualToNode(*node);
       node->setLayoutDoesLegacyFlagAffectsLayout(neededLegacyStretchBehaviour);
 
-#ifdef DEBUG
-      if (nodeWithoutLegacyFlag->getConfig()->printTree) {
-        YGNodePrint(
-            nodeWithoutLegacyFlag,
-            (YGPrintOptions)(
-                YGPrintOptionsLayout | YGPrintOptionsChildren |
-                YGPrintOptionsStyle));
-      }
-#endif
+//#ifdef DEBUG
+//      if (nodeWithoutLegacyFlag->getConfig()->printTree) {
+//        YGNodePrint(
+//            nodeWithoutLegacyFlag,
+//            (YGPrintOptions)(
+//                YGPrintOptionsLayout | YGPrintOptionsChildren |
+//                YGPrintOptionsStyle));
+//      }
+//#endif
     }
     YGConfigFreeRecursive(nodeWithoutLegacyFlag);
     YGNodeFreeRecursive(nodeWithoutLegacyFlag);

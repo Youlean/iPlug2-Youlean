@@ -223,13 +223,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void)layoutSubviews
 {
-  [UIView setAnimationsEnabled:NO];
   [super layoutSubviews];
 }
 
 - (void) orientationChanged:(NSNotification *)note
 {
-  [UIView setAnimationsEnabled:NO];
   mGraphics->GetDelegate()->LayoutUI(mGraphics);
 }
 
