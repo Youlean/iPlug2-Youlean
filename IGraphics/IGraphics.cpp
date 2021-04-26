@@ -2737,13 +2737,18 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
     PathTransformSetMatrix(mTransform);
   }
 
-  void IGraphics::PathClipRegion(const IRECT r)
+  void IGraphics::PathResetClipRegion()
+  {
+    ResetClipRegion();
+  }
+
+  void IGraphics::PathClipRegion(const IRECT r, bool ignoreMatrix)
   {
     IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
     IRECT clip = r.Empty() ? drawArea : r.Intersect(drawArea);
-    PathTransformSetMatrix(IMatrix());
+    if (ignoreMatrix) PathTransformSetMatrix(IMatrix());
     SetClipRegion(clip);
-    PathTransformSetMatrix(mTransform);
+    if (ignoreMatrix) PathTransformSetMatrix(mTransform);
   }
   
   void IGraphics::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)

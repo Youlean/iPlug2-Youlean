@@ -325,12 +325,12 @@ public:
    * @param y the new y coordinate of the top left corner of the control */
   virtual void SetPosition(float x, float y);
 
-  /** Set the size of the control, preserving the current position. This may need to be overriden if you maintain custom positioning data in your control, or if your TargetRECT is not the same as the main RECT.
+  /** Set the size of the control, preserving the current position. This may need to be overridden if you maintain custom positioning data in your control, or if your TargetRECT is not the same as the main RECT.
    * @param w the new width of the control
    * @param h the new height of the control */
   virtual void SetSize(float w, float h);
 
-  /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
+  /** Used internally by the AAX wrapper view interface to set the control parameter highlight
    * @param isHighlighted /c true if the control should be highlighted 
    * @param color An integer representing one of three colors that ProTools assigns automated controls */
   void SetPTParameterHighlight(bool isHighlighted, int color);

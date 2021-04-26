@@ -732,9 +732,11 @@ public:
    * @param matrix The transfomation matrix */
   void PathTransformMatrix(const IMatrix& matrix);
 
+  void PathResetClipRegion();
+
   /** Clip the current path to a particular region
    * @param r The rectangular region to clip */
-  void PathClipRegion(const IRECT r = IRECT());
+  void PathClipRegion(const IRECT r = IRECT(), bool ignoreMatrix = true);
   
   virtual void PathTransformSetMatrix(const IMatrix& matrix) = 0;
 
@@ -770,6 +772,7 @@ private:
   * @param bounds The rectangular region that is complete  */
   virtual void CompleteRegion(const IRECT& bounds) {}
 
+  virtual void ResetClipRegion() = 0;
   virtual void SetClipRegion(const IRECT& r) = 0;
 
 public:

@@ -816,6 +816,11 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
   nvgTransform(mVG, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
 }
 
+void IGraphicsNanoVG::ResetClipRegion()
+{
+  nvgResetScissor(mVG);
+}
+
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
 {
   nvgScissor(mVG, r.L, r.T, r.W(), r.H());
