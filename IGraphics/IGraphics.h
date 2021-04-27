@@ -569,6 +569,9 @@ protected:
   
 #pragma mark - Drawing API path support
 public:
+  virtual void SaveState() = 0;
+  virtual void RestoreState() = 0;
+
   /** Clear the stack of path drawing commands */
   virtual void PathClear() = 0;
 

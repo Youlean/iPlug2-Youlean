@@ -101,7 +101,10 @@ public:
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
   void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) override;
-  
+
+  void SaveState() override;
+  void RestoreState() override;
+
   void PathClear() override;
   void PathClose() override;
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;

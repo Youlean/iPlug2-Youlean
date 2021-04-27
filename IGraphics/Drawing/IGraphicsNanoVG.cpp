@@ -572,6 +572,18 @@ void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int s
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
 }
 
+void IGraphicsNanoVG::SaveState()
+{
+  IGraphics::PathTransformSave();
+  nvgSave(mVG);
+}
+
+void IGraphicsNanoVG::RestoreState()
+{
+  nvgRestore(mVG);
+  IGraphics::PathTransformRestore();
+}
+
 void IGraphicsNanoVG::PathClear()
 {
   nvgBeginPath(mVG);
