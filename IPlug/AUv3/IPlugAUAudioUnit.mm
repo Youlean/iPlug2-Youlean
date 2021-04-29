@@ -110,6 +110,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void) SetIOSAudioEngineState:(int) state
+{
+  if (mPlug->GetUI())
+  {
+    iplug::igraphics::IGraphics::EIOSAudioEngineState stateEnum = (iplug::igraphics::IGraphics::EIOSAudioEngineState)state;
+    mPlug->GetUI()->SetIOSAudioEngineState(stateEnum);
+  }
+}
+
 - (instancetype)initWithComponentDescription:(AudioComponentDescription)componentDescription
                                      options:(AudioComponentInstantiationOptions)options
                                        error:(NSError **)ppOutError {

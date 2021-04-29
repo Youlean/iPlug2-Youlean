@@ -21,5 +21,8 @@
 - (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription) desc completion:(void (^) (void)) completionBlock;
 
 - (void) start;
+- (void) stop;
+- (void) pause;
+- (void) restart;
 
 @end

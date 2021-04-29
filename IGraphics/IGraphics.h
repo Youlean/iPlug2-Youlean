@@ -1731,9 +1731,24 @@ protected:
   virtual float GetBackingPixelScale() const { return GetScreenScale() * GetDrawScale(); };
 
   IMatrix GetTransformMatrix() const { return mTransform; }
+  
+public:
+  // TODO: Should find a better place to place this
+  enum EIOSAudioEngineState
+  {
+    kStopped,
+    kActive,
+    kPaused,
+    kResumed,
+  };
+  
+  EIOSAudioEngineState GetIOSAudioEngineState() { return mIOSAudioEngineState; }
+  void SetIOSAudioEngineState(EIOSAudioEngineState state) { mIOSAudioEngineState = state; }
 #pragma mark -
 
 private:
+  EIOSAudioEngineState mIOSAudioEngineState = EIOSAudioEngineState::kActive;
+  
   void ClearMouseOver()
   {
     mMouseOver = nullptr;

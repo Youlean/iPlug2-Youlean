@@ -11,4 +11,7 @@
 #import <UIKit/UIKit.h>
 
 @interface AppViewController : UIViewController
+
+- (void) SetIOSAudioEngineState:(int) state;
+- (void*) GetAUPlayer;
 @end

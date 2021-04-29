@@ -34,4 +34,5 @@
 - (void) layoutUI;
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
+- (void) SetIOSAudioEngineState:(int) state;
 @end

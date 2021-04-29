@@ -13,6 +13,7 @@
 #import "IPlugAUAudioUnit.h"
 
 #include "config.h"
+#include "IGraphics.h"
 
 #import "IPlugAUViewController.h"
 #import <CoreAudioKit/CoreAudioKit.h>
@@ -31,6 +32,19 @@
 
 @implementation AppViewController
 
+- (void) SetIOSAudioEngineState:(int) state
+{
+  iplug::igraphics::IGraphics::EIOSAudioEngineState stateEnum = (iplug::igraphics::IGraphics::EIOSAudioEngineState)state;
+  
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+  [au SetIOSAudioEngineState: stateEnum];
+}
+
+- (void*) GetAUPlayer
+{
+  return (__bridge void*)player;
+}
+
 - (BOOL)prefersStatusBarHidden
 {
   return YES;
@@ -39,7 +53,7 @@
 - (void) viewDidLoad
 {
   [super viewDidLoad];
-
+  
 #if PLUG_HAS_UI
   NSString* storyBoardName = [NSString stringWithFormat:@"%s-iOS-MainInterface", PLUG_NAME];
   UIStoryboard* storyboard = [UIStoryboard storyboardWithName:storyBoardName bundle: nil];
@@ -74,9 +88,36 @@
     self->iplugViewController.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
 
     [self embedPlugInView];
+    [self->iplugViewController.audioUnit SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kActive];
   }];
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
+  
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(AudioInterruption:)
+                                               name:AVAudioSessionInterruptionNotification
+                                             object:session];
+}
+
+- (void)AudioInterruption:(NSNotification *)notification
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+  IPlugAUPlayer* auPlayer = (IPlugAUPlayer*)player;
+  
+  if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] isEqualToNumber:[NSNumber numberWithInt:AVAudioSessionInterruptionTypeBegan]])
+  {
+    //NSLog(@"InterruptionTypeBegan");
+    [auPlayer pause];
+    [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kPaused];
+  }
+  else
+  {
+    //NSLog(@"InterruptionTypeEnded");
+    [auPlayer restart];
+    [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kResumed];
+  }
 }
 
 -(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
