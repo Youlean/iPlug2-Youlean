@@ -53,7 +53,8 @@
   AppViewController *viewController = [self GetUIViewController];
   IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
   
-  [player stop];
+  [player stopEngine];
+  [player deactivate];
   [viewController SetIOSAudioEngineState: 0];
 }
 
@@ -66,7 +67,8 @@
   AppViewController *viewController = [self GetUIViewController];
   IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
   
-  [player start];
+  [player activate];
+  [player startEngine];
   [viewController SetIOSAudioEngineState: 1];
 }
 

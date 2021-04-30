@@ -20,9 +20,9 @@
 
 - (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription) desc completion:(void (^) (void)) completionBlock;
 
-- (void) start;
-- (void) stop;
-- (void) pause;
-- (void) restart;
+- (void) activate;
+- (void) deactivate;
+- (void) startEngine;
+- (void) stopEngine;
 
 @end

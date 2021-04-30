@@ -103,20 +103,52 @@
 
 - (void)AudioInterruption:(NSNotification *)notification
 {
+  NSNumber *interruptionType = [[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey];
+  //NSNumber *interruptionOption = [[notification userInfo] objectForKey:AVAudioSessionInterruptionOptionKey];
+
   IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
   IPlugAUPlayer* auPlayer = (IPlugAUPlayer*)player;
   
-  if ([[notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey] isEqualToNumber:[NSNumber numberWithInt:AVAudioSessionInterruptionTypeBegan]])
+  switch (interruptionType.unsignedIntegerValue)
   {
-    //NSLog(@"InterruptionTypeBegan");
-    [auPlayer pause];
-    [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kPaused];
-  }
-  else
-  {
-    //NSLog(@"InterruptionTypeEnded");
-    [auPlayer restart];
-    [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kResumed];
+    case AVAudioSessionInterruptionTypeBegan:
+    {
+      // • Audio has stopped, already inactive
+      // • Change state of UI, etc., to reflect non-playing state
+      [auPlayer stopEngine];
+      [auPlayer deactivate];
+      
+      [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kPaused];
+      
+      break;
+    }
+    case AVAudioSessionInterruptionTypeEnded:
+    {
+      // • Make session active
+      // • Update user interface
+      // • AVAudioSessionInterruptionOptionShouldResume option
+      [auPlayer activate];
+      [auPlayer startEngine];
+
+      [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kResumed];
+      
+      // Delay start because this notification is fired before call is ended and it's audio engine is stopped. 1s-3s should be fine
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), dispatch_get_main_queue(), ^{
+        [auPlayer activate];
+        [auPlayer startEngine];
+      });
+//      if (interruptionOption.unsignedIntegerValue == AVAudioSessionInterruptionOptionShouldResume)
+//      {
+//        // Here you should continue playback.
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3), dispatch_get_main_queue(), ^{
+//          [auPlayer restart];
+//        });
+//      }
+    
+      break;
+    }
+    default:
+      break;
   }
 }
 
