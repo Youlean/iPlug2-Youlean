@@ -70,21 +70,23 @@
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
   
+  double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
+  
 //  AVAudioFormat* formatIn = [mainMixer inputFormatForBus:0];
 //  AVAudioFormat* formatOut = [mainMixer outputFormatForBus:0];
   
-  AVAudioFormat* formatI = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:session.sampleRate channels:(int)session.inputNumberOfChannels];
+  AVAudioFormat* formatI = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.inputNumberOfChannels];
   
-  AVAudioFormat* formatO = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:session.sampleRate channels:(int)session.outputNumberOfChannels];
+  AVAudioFormat* formatO = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.outputNumberOfChannels];
   
   [audioEngine attachNode:avAudioUnit];
   
-//  double s1 = session.sampleRate;
-//  double s2 = formatIn.sampleRate;
-//  double s3 = formatOut.sampleRate;
-//
-//  double s4 = formatI.sampleRate;
-//  double s5 = formatO.sampleRate;
+  //double s1 = session.sampleRate;
+  //double s2 = formatIn.sampleRate;
+  //double s3 = formatOut.sampleRate;
+
+  //double s4 = formatI.sampleRate;
+  //double s5 = formatO.sampleRate;
   
   //[audioEngine connect:avAudioUnit to:mainMixer format: formatI];
   
