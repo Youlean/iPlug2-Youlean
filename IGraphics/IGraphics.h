@@ -1741,7 +1741,12 @@ public:
     kPaused,
     kResumed,
   };
-  
+
+  // AUv3 app host stuff
+  virtual void SetAUAudioUnit(void* pAUAudioUnit) {}
+  virtual void StartAUV3AppDSP() {}
+  virtual void StopAUV3AppDSP() {}
+
   EIOSAudioEngineState GetIOSAudioEngineState() { return mIOSAudioEngineState; }
   void SetIOSAudioEngineState(EIOSAudioEngineState state) { mIOSAudioEngineState = state; }
 #pragma mark -

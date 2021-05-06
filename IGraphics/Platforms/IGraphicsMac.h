@@ -83,7 +83,7 @@ private:
 
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
-  
+
   void* mView = nullptr;
   void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;

@@ -35,4 +35,11 @@
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
 - (void) SetIOSAudioEngineState:(int) state;
+- (void) SetAppHostInfo;
+
+- (void)setAVAudioEngine: (void*)engine;
+- (void)startAudioPlayer;
+- (void)stopAudioPlayer;
+
+@property (nonatomic) void *avEngine;
 @end

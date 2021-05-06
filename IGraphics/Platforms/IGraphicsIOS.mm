@@ -19,6 +19,8 @@
 #include <map>
 #include <string>
 
+#include "IPlugAUAudioUnit.h"
+
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 BEGIN_IPLUG_NAMESPACE
@@ -91,6 +93,25 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 IGraphicsIOS::~IGraphicsIOS()
 {
   CloseWindow();
+}
+
+void IGraphicsIOS::StartAUV3AppDSP()
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*)mAUAudioUnit;
+
+  if (au)
+  {
+    [au startAudioPlayer];
+  }
+}
+void IGraphicsIOS::StopAUV3AppDSP()
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*)mAUAudioUnit;
+
+  if (au)
+  {
+    [au stopAudioPlayer];
+  }
 }
 
 void* IGraphicsIOS::OpenWindow(void* pParent)

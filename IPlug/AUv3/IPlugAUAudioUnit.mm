@@ -119,6 +119,55 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void) SetAppHostInfo
+{
+  if (mPlug)
+  {
+    mPlug->SetHost("auv3app", 0);
+  }
+}
+
+- (void)setAVAudioEngine: (void*)engine
+{
+  _avEngine = engine;
+}
+- (void)startAudioPlayer
+{
+  AVAudioEngine *engine = (__bridge AVAudioEngine *)_avEngine;
+
+  if (engine)
+  {
+    NSError* error = nil;
+    AVAudioSession* session = [AVAudioSession sharedInstance];
+    [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+
+    BOOL success = [[AVAudioSession sharedInstance] setActive:YES error:nil];
+
+    if (success == NO)
+      NSLog (@"Error setting category: %@", [error localizedDescription]);
+
+    success = [engine startAndReturnError:&error];
+
+    if (!success)
+      NSLog (@"engine failed to start: %@", error);
+  }
+}
+- (void)stopAudioPlayer
+{
+  AVAudioEngine *engine = (__bridge AVAudioEngine *)_avEngine;
+
+  if (engine)
+  {
+    [engine stop];
+
+    NSError* error = nil;
+    BOOL success = [[AVAudioSession sharedInstance] setActive:NO error:nil];
+
+    if (success == NO)
+      NSLog (@"Error setting category: %@", [error localizedDescription]);
+  }
+}
+
 - (instancetype)initWithComponentDescription:(AudioComponentDescription)componentDescription
                                      options:(AudioComponentInstantiationOptions)options
                                        error:(NSError **)ppOutError {
@@ -128,6 +177,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
                                        error:ppOutError];
   
   if (self == nil) { return nil; }
+
+  _avEngine = nullptr;
   
   // Create a DSP kernel to handle the signal processing.
   mPlug = MakePlug(InstanceInfo());
@@ -821,6 +872,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent
 {
   PLATFORM_VIEW* pView = (__bridge PLATFORM_VIEW*) mPlug->OpenWindow((__bridge void*) pParent);
+
+  if (mPlug->GetUI())
+  {
+    mPlug->GetUI()->SetAUAudioUnit((__bridge void *) self);
+  }
   
   return pView;
 }

@@ -238,7 +238,9 @@ enum EHost
   kHostPluginDoctor,
   kHostiZotopeRX,		
   kHostSAVIHost,		
-  kHostBlueCat,			
+  kHostBlueCat,
+  
+  kHostAUV3APP,
 
   // These hosts don't report the host name:
   // EnergyXT2

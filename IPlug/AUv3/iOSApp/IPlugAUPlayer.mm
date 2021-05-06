@@ -101,6 +101,11 @@
   completionBlock();
 }
 
+- (AVAudioEngine *)getAudioEngine
+{
+  return audioEngine;
+}
+
 - (void) activate
 {
   NSError* error = nil;

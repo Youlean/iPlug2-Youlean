@@ -87,6 +87,9 @@
   [player loadAudioUnitWithComponentDescription:desc completion:^{
     self->iplugViewController.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
 
+    AVAudioEngine *engine = [self->player getAudioEngine];
+    [self->iplugViewController.audioUnit setAVAudioEngine:(__bridge void *) engine];
+    [self->iplugViewController.audioUnit SetAppHostInfo];
     [self embedPlugInView];
     [self->iplugViewController.audioUnit SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kActive];
   }];

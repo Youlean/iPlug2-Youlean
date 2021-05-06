@@ -71,6 +71,11 @@ public:
   
   bool PlatformSupportsMultiTouch() const override { return true; }
 
+  // AUv3 app host stuff
+  void SetAUAudioUnit(void* pAUAudioUnit) override { mAUAudioUnit = pAUAudioUnit; }
+  void StartAUV3AppDSP() override;
+  void StopAUV3AppDSP() override;
+
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
@@ -81,6 +86,7 @@ protected:
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
 private:
+  void* mAUAudioUnit = nullptr;
   void* mView = nullptr;
   void* mImGuiView = nullptr;
 

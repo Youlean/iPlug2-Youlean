@@ -219,6 +219,7 @@ static EHost LookUpHost(const char* inHost)
   
   if (strstr(host, "standalone"))           return kHostStandalone;
   if (strstr(host, "www"))                  return kHostWWW;
+  if (strstr(host, "auv3app"))              return kHostAUV3APP;
 
   return kHostUnknown;
 
@@ -281,6 +282,7 @@ static void GetHostNameStr(EHost host, WDL_String& str)
       
       case kHostStandalone:         str.Set("standalone");          break;
       case kHostWWW:                str.Set("www");                 break;
+      case kHostAUV3APP:             str.Set("auv3app");             break;
 
       default:                      str.Set("Unknown"); break;
   }

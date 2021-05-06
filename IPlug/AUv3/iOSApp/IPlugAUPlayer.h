@@ -20,6 +20,8 @@
 
 - (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription) desc completion:(void (^) (void)) completionBlock;
 
+- (AVAudioEngine*) getAudioEngine;
+
 - (void) activate;
 - (void) deactivate;
 - (void) startEngine;
