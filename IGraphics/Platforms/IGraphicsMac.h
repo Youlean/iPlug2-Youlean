@@ -60,6 +60,7 @@ public:
   void* GetWindow() override;
 
   const char* GetBundleID() override { return mBundleID.Get(); }
+  const char* GetDeviceName() override;
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;

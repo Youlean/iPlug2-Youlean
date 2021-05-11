@@ -337,6 +337,12 @@ IRECT IGraphicsIOS::GetSafeDrawArea()
   return r;
 }
 
+const char* IGraphicsIOS::GetDeviceName()
+{
+  NSString *deviceName = [[UIDevice currentDevice] name];
+  return [deviceName UTF8String];
+}
+
 // static
 int IGraphicsIOS::GetUserOSVersion()
 {

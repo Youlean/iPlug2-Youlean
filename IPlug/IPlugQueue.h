@@ -38,7 +38,7 @@ public:
 
   ~IPlugQueue(){}
 
-  IPlugQueue(const IPlugQueue&) = delete;
+  IPlugQueue(const IPlugQueue&) = default;
   IPlugQueue& operator=(const IPlugQueue&) = delete;
     
   /** \todo 

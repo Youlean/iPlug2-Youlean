@@ -659,11 +659,13 @@ public:
    * @param x The X coordinate
    * @param y The Y coordinate */
   virtual void PathMoveTo(float x, float y) = 0;
+  virtual void PathMoveToRel(float x, float y) = 0;
 
   /** Add a line to the current path from the current point to the specified location
    * @param x The X coordinate of the end of the line
    * @param y The Y coordinate of the end of the line */
   virtual void PathLineTo(float x, float y) = 0;
+  virtual void PathLineToRel(float x, float y) = 0;
 
   /** NanoVG only. https://github.com/memononen/nanovg/blob/master/src/nanovg.h#L454
   * @param clockwise Should the path be wound clockwise */
@@ -677,6 +679,7 @@ public:
    * @param x2 The X coordinate of the end of the line
    * @param y2 The Y coordinate of the end of the line */
   virtual void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) = 0;
+  virtual void PathCubicBezierToRel(float c1x, float c1y, float c2x, float c2y, float x2, float y2) = 0;
 
   /** Add a quadratic bezier to the current path from the current point to the specified location
    * @param cx Control point X coordinate
@@ -684,6 +687,7 @@ public:
    * @param x2 The X coordinate of the end of the line
    * @param y2 The Y coordinate of the end of the line */
   virtual void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) = 0;
+  virtual void PathQuadraticBezierToRel(float cx, float cy, float x2, float y2) = 0;
   
   /** Stroke the current current path
    * @param pattern The IPattern to use, for e.g. color or gradient
@@ -938,6 +942,9 @@ public:
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
+
+    /** Gets the machine device name */
+  virtual const char* GetDeviceName() = 0;
 
 protected:
   /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */

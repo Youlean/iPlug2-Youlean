@@ -601,21 +601,71 @@ void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float a1, float a2, E
 
 void IGraphicsNanoVG::PathMoveTo(float x, float y)
 {
+  mRelX = x;
+  mRelY = y;
+  nvgMoveTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathMoveToRel(float x, float y)
+{
+  x += mRelX;
+  y += mRelY;
+  mRelX = x;
+  mRelY = y;
   nvgMoveTo(mVG, x, y);
 }
 
 void IGraphicsNanoVG::PathLineTo(float x, float y)
 {
+  mRelX = x;
+  mRelY = y;
+  nvgLineTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathLineToRel(float x, float y)
+{
+  x += mRelX;
+  y += mRelY;
+  mRelX = x;
+  mRelY = y;
   nvgLineTo(mVG, x, y);
 }
 
 void IGraphicsNanoVG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
+  mRelX = x2;
+  mRelY = y2;
+  nvgBezierTo(mVG, c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsNanoVG::PathCubicBezierToRel(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
+{
+  c1x += mRelX;
+  c1y += mRelY;
+  c2x += mRelX;
+  c2y += mRelY;
+  x2 += mRelX;
+  y2 += mRelY;
+  mRelX = x2;
+  mRelY = y2;
   nvgBezierTo(mVG, c1x, c1y, c2x, c2y, x2, y2);
 }
 
 void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
 {
+  mRelX = x2;
+  mRelY = y2;
+  nvgQuadTo(mVG, cx, cy, x2, y2);
+}
+
+void IGraphicsNanoVG::PathQuadraticBezierToRel(float cx, float cy, float x2, float y2)
+{
+  cx += mRelX;
+  cy += mRelY;
+  x2 += mRelX;
+  y2 += mRelY;
+  mRelX = x2;
+  mRelY = y2;
   nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 

@@ -592,6 +592,12 @@ void* IGraphicsMac::GetWindow()
   else return 0;
 }
 
+const char* IGraphicsMac::GetDeviceName()
+{
+  NSString *deviceName = [[NSHost currentHost] localizedName];
+  return [deviceName UTF8String];
+}
+
 // static
 int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
 {
