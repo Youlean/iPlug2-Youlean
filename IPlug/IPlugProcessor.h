@@ -128,6 +128,8 @@ public:
   /** @param numerator The upper part of the current time signature e.g "6" in the time signature 6/8
    *  @param denominator The lower part of the current time signature e.g "8" in the time signature 6/8 */
   void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
+  
+  const ITimeInfo GetTimeInfo() { return mTimeInfo; }
 
 #pragma mark -
   
