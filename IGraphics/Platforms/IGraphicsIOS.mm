@@ -311,21 +311,27 @@ IRECT IGraphicsIOS::GetSafeDrawArea()
         
         if(orientation == UIInterfaceOrientationPortrait) // Device oriented vertically, home button on the bottom
         {
-          bottomPadding = 0;
+          if (bottomPadding > 0)
+            bottomPadding = 15;
         }
         else if(orientation == UIInterfaceOrientationPortraitUpsideDown) // Device oriented vertically, home button on the top
         {
-          topPadding = 0;
+          if (topPadding > 0)
+            topPadding = 15;
         }
         else if(orientation == UIInterfaceOrientationLandscapeRight) // Device oriented horizontally, home button on the right
         {
           rightPadding = 0;
-          bottomPadding = 0;
+
+          if (bottomPadding > 0)
+            bottomPadding = 15;
         }
         else if(orientation == UIInterfaceOrientationLandscapeLeft) // Device oriented horizontally, home button on the left
         {
           leftPadding = 0;
-          bottomPadding = 0;
+
+          if (bottomPadding > 0)
+            bottomPadding = 15;
         }
         
         r.Pad(-leftPadding / GetDrawScale(), -topPadding / GetDrawScale(), -rightPadding / GetDrawScale(), -bottomPadding / GetDrawScale());
