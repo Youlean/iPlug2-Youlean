@@ -226,6 +226,9 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   err = compDesc->AddProcessProc_Native( AAX_CIPlugParameters::StaticRenderAudio, properties );
   err = ioDescriptor->AddComponent( compDesc );
   
+  // disable multimono plugins
+  err = properties->AddProperty(AAX_eProperty_Constraint_MultiMonoSupport, false);
+  
   return err;
 }
 
