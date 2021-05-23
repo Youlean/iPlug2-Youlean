@@ -358,11 +358,34 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
     
-    // Layout UI if the orientation has changed
-    if (self.window && self.window.windowScene)
+    if (@available(iOS 13.0, *))
     {
-      UIInterfaceOrientation orientation = [self.window.windowScene interfaceOrientation];
+      // Layout UI if the orientation has changed
+      if (self.window && self.window.windowScene)
+      {
+        UIInterfaceOrientation orientation = [self.window.windowScene interfaceOrientation];
+        
+        if (mOrientation != orientation)
+        {
+          mOrientation = orientation;
+          mGraphics->GetDelegate()->LayoutUI(mGraphics);
+        }
+      }
+    }
+    else if (@available(iOS 12.0, *))
+    {
+      UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
+      UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
       
+      if (deviceOrientation == UIDeviceOrientationPortrait)
+        orientation = UIInterfaceOrientationPortrait;
+      else if (deviceOrientation == UIDeviceOrientationPortraitUpsideDown)
+        orientation = UIInterfaceOrientationPortraitUpsideDown;
+      else if (deviceOrientation == UIDeviceOrientationLandscapeRight)
+        orientation = UIInterfaceOrientationLandscapeLeft;
+      else if (deviceOrientation == UIDeviceOrientationLandscapeRight)
+        orientation = UIInterfaceOrientationLandscapeLeft;
+
       if (mOrientation != orientation)
       {
         mOrientation = orientation;
@@ -636,29 +659,29 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
 {
-#ifdef __IPHONE_14_0
-  UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
-  
-  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-  
-  if(idiom == UIUserInterfaceIdiomPad)
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
-  else
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
-  
-  colorSelectionController.popoverPresentationController.delegate = self;
-  colorSelectionController.popoverPresentationController.sourceView = self;
-  
-  float x, y;
-  mGraphics->GetMouseLocation(x, y);
-  colorSelectionController.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
-  
-  colorSelectionController.delegate = self;
-  colorSelectionController.selectedColor = ToUIColor(color);
-  colorSelectionController.supportsAlpha = YES;
-  
-  mColorPickerHandlerFunc = func;
-  
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0
+    UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
+    
+    UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    
+    if(idiom == UIUserInterfaceIdiomPad)
+      colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
+    else
+      colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
+    
+    colorSelectionController.popoverPresentationController.delegate = self;
+    colorSelectionController.popoverPresentationController.sourceView = self;
+    
+    float x, y;
+    mGraphics->GetMouseLocation(x, y);
+    colorSelectionController.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
+    
+    colorSelectionController.delegate = self;
+    colorSelectionController.selectedColor = ToUIColor(color);
+    colorSelectionController.supportsAlpha = YES;
+    
+    mColorPickerHandlerFunc = func;
+    
   [self.window.rootViewController presentViewController:colorSelectionController animated:YES completion:nil];
 #endif
 
@@ -887,7 +910,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
-#ifdef __IPHONE_14_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {
   if(mColorPickerHandlerFunc)

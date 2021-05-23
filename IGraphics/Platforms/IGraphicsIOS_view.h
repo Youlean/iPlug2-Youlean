@@ -83,7 +83,7 @@ using namespace igraphics;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
 
-#ifdef __IPHONE_14_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 - (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
 #endif
