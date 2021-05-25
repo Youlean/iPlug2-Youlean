@@ -41,16 +41,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
   return YES;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
+  AppViewController *viewController = [self GetUIViewController];
+  [viewController AUv3AppState: 0];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
+  [viewController AUv3AppState: 1];
+  
   IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
   
   [player stopEngine];
@@ -60,11 +65,15 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  AppViewController *viewController = [self GetUIViewController];
+  [viewController AUv3AppState: 2];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
+  [viewController AUv3AppState: 3];
+  
   IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
   
   [player activate];
@@ -74,6 +83,8 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
+  AppViewController *viewController = [self GetUIViewController];
+  [viewController AUv3AppState: 4];
 }
 
 @end

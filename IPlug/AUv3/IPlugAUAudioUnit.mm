@@ -110,6 +110,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void) AUv3AppState:(int) state
+{
+  if (mPlug)
+  {
+    mPlug->AUv3AppState((iplug::IPlugAUv3::AUv3AppStateInfo)state);
+  }
+}
+
 - (void) SetIOSAudioEngineState:(int) state
 {
   if (mPlug->GetUI())

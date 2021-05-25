@@ -72,6 +72,17 @@ public:
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
+  
+  enum AUv3AppStateInfo
+  {
+    kWillResignActive = 0,
+    kDidEnterBackground,
+    kWillEnterForeground,
+    kDidBecomeActive,
+    kWillTerminate,
+  };
+  
+  virtual void AUv3AppState(AUv3AppStateInfo state) {}
 
 private:
 //  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);

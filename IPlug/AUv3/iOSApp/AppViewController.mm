@@ -40,6 +40,16 @@
   [au SetIOSAudioEngineState: stateEnum];
 }
 
+- (void) AUv3AppState:(int) state
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+  
+  if (au)
+  {
+    [au AUv3AppState: state];
+  }
+}
+
 - (void*) GetAUPlayer
 {
   return (__bridge void*)player;

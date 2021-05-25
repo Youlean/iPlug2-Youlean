@@ -13,5 +13,6 @@
 @interface AppViewController : UIViewController
 
 - (void) SetIOSAudioEngineState:(int) state;
+- (void) AUv3AppState:(int) state;
 - (void*) GetAUPlayer;
 @end
