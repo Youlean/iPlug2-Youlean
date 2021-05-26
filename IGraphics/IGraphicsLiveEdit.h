@@ -270,7 +270,6 @@ public:
     {
       IControl* pControl = GetUI()->GetControl(c);
 
-
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
 
@@ -489,6 +488,9 @@ public:
     {
       IControl* pControl = g.GetControl(i);
       IRECT cr = pControl->GetRECT();
+
+      if(pControl->IsHidden() || pControl->IsDisabled())
+        continue;
 
       if(pControl->IsHidden())
         g.DrawDottedRect(COLOR_RED, cr);

@@ -1299,10 +1299,10 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
     {
       IControl* pControl = GetControl(c);
 
-#ifndef NDEBUG
-      if(!mLiveEdit)
-      {
-#endif
+//#ifndef NDEBUG
+//      if(!mLiveEdit)
+//      {
+//#endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
           if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMouseOverWhenDisabled() : pControl->GetMouseEventsWhenDisabled())))
@@ -1313,13 +1313,13 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
             }
           }
         }
-#ifndef NDEBUG
-      }
-      else if (pControl->GetRECT().Contains(x, y))
-      {
-        return c;
-      }
-#endif
+//#ifndef NDEBUG
+//      }
+//      else if (pControl->GetRECT().Contains(x, y))
+//      {
+//        return c;
+//      }
+//#endif
     }
   }
   
