@@ -55,12 +55,6 @@
 {
   AppViewController *viewController = [self GetUIViewController];
   [viewController AUv3AppState: 1];
-  
-  IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
-  
-  [player stopEngine];
-  [player deactivate];
-  [viewController SetIOSAudioEngineState: 0];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -73,12 +67,6 @@
 {
   AppViewController *viewController = [self GetUIViewController];
   [viewController AUv3AppState: 3];
-  
-  IPlugAUPlayer* player = (IPlugAUPlayer*)[viewController GetAUPlayer];
-  
-  [player activate];
-  [player startEngine];
-  [viewController SetIOSAudioEngineState: 1];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

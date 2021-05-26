@@ -102,6 +102,7 @@ void IGraphicsIOS::StartAUV3AppDSP()
   if (au)
   {
     [au startAudioPlayer];
+    [au SetIOSAudioEngineState: IGraphics::EIOSAudioEngineState::kActive];
   }
 }
 void IGraphicsIOS::StopAUV3AppDSP()
@@ -111,6 +112,7 @@ void IGraphicsIOS::StopAUV3AppDSP()
   if (au)
   {
     [au stopAudioPlayer];
+    [au SetIOSAudioEngineState: IGraphics::EIOSAudioEngineState::kStopped];
   }
 }
 
