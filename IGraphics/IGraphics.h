@@ -608,7 +608,7 @@ public:
 
   /** Add a rectangle to the current path
    * @param bounds The bounds of the rectangle to add */
-  void PathRect(const IRECT& bounds);
+  virtual void PathRect(const IRECT& bounds);
 
   /** Add a rounded rectangle to the current path, with independent corner roundness
    * @param bounds The rectangular region to draw the shape in
@@ -616,12 +616,12 @@ public:
    * @param cRTR The top right corner radius in pixels
    * @param cRBR The bottom right corner radius in pixels
    * @param cRBL The bottom left corner radius in pixels */
-  void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr);
+  virtual void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr);
 
   /** Add a rounded rectangle to the current path
    * @param bounds The rectangular region to draw the shape in
    * @param cornerRadius The corner radius in pixels */
-  void PathRoundRect(const IRECT& bounds, float cornerRadius = 5.f);
+  virtual void PathRoundRect(const IRECT& bounds, float cornerRadius = 5.f);
 
   /** Add an arc to the current path
    * @param cx The X coordinate of the centre of the circle on which the arc lies
@@ -635,11 +635,11 @@ public:
    * @param cx The X coordinate of the centre of the circle
    * @param cy The Y coordinate of the centre of the circle
    * @param r The radius of the circle */
-  void PathCircle(float cx, float cy, float r);
+  virtual void PathCircle(float cx, float cy, float r);
 
   /** Add an ellipse to the current path, specifying the rectangular region
    * @param bounds The rectangular region to draw the shape in */
-   void PathEllipse(const IRECT& bounds);
+  virtual void PathEllipse(const IRECT& bounds);
   
   /** Add an ellipse to the current path
    * @param x The X coordinate of the centre of the ellipse
@@ -647,7 +647,7 @@ public:
    * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
    * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
    * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation */
-  void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0);
+  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0);
 
   /** Add a convex polygon to the current path
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
@@ -659,13 +659,11 @@ public:
    * @param x The X coordinate
    * @param y The Y coordinate */
   virtual void PathMoveTo(float x, float y) = 0;
-  virtual void PathMoveToRel(float x, float y) = 0;
 
   /** Add a line to the current path from the current point to the specified location
    * @param x The X coordinate of the end of the line
    * @param y The Y coordinate of the end of the line */
   virtual void PathLineTo(float x, float y) = 0;
-  virtual void PathLineToRel(float x, float y) = 0;
 
   /** NanoVG only. https://github.com/memononen/nanovg/blob/master/src/nanovg.h#L454
   * @param clockwise Should the path be wound clockwise */
@@ -679,7 +677,6 @@ public:
    * @param x2 The X coordinate of the end of the line
    * @param y2 The Y coordinate of the end of the line */
   virtual void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) = 0;
-  virtual void PathCubicBezierToRel(float c1x, float c1y, float c2x, float c2y, float x2, float y2) = 0;
 
   /** Add a quadratic bezier to the current path from the current point to the specified location
    * @param cx Control point X coordinate
@@ -687,7 +684,6 @@ public:
    * @param x2 The X coordinate of the end of the line
    * @param y2 The Y coordinate of the end of the line */
   virtual void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) = 0;
-  virtual void PathQuadraticBezierToRel(float cx, float cy, float x2, float y2) = 0;
   
   /** Stroke the current current path
    * @param pattern The IPattern to use, for e.g. color or gradient

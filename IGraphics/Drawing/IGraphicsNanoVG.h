@@ -107,15 +107,14 @@ public:
 
   void PathClear() override;
   void PathClose() override;
+  void PathRect(const IRECT& bounds) override;
+  void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override;
+  void PathRoundRect(const IRECT& bounds, float cornerRadius = 5.f) override;
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
-  void PathMoveToRel(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathLineToRel(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
-  void PathCubicBezierToRel(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
-  void PathQuadraticBezierToRel(float cx, float cy, float x2, float y2) override;
   void PathSetWinding(bool clockwise) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;

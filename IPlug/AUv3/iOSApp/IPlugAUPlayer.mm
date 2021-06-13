@@ -70,10 +70,10 @@
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
   
-  double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
-  
 //  AVAudioFormat* formatIn = [mainMixer inputFormatForBus:0];
 //  AVAudioFormat* formatOut = [mainMixer outputFormatForBus:0];
+  
+  double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
   
   AVAudioFormat* formatI = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.inputNumberOfChannels];
   
