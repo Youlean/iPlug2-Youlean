@@ -154,7 +154,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mStep = step;
   mDefault = defaultVal;
   mUnit = unit;
-  mFlags = flags;
+  mFlags = flags | kFlagStepped;
   mDisplayFunction = displayFunc;
 
   Set(defaultVal);
