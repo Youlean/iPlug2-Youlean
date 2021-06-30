@@ -42,6 +42,8 @@ public:
   void DrawResize() override; // overriden here to deal with GL graphics context capture
 #endif
 
+  const char* GetDeviceName() { return ""; };
+
   void CheckTabletInput(UINT msg);
   void DestroyEditWindow();
     
