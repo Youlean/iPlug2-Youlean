@@ -969,14 +969,14 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
   {
     const double range = pParam->GetRange();
-    
-    if (range > 0.)
+
+    if (range > 0. && pParam->GetStep() > 0.)
     {
       double l, h;
       pParam->GetBounds(l,h);
 
       v = l + mMouseDragValue * range;
-      v = v - std::fmod(v, pParam->GetStep());
+      v = std::floor(v / pParam->GetStep()) * pParam->GetStep();
       v -= l;
       v /= range;
     }
