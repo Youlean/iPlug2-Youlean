@@ -775,7 +775,7 @@ private:
   * @param bounds The rectangular region that is complete  */
   virtual void CompleteRegion(const IRECT& bounds) {}
 
-  virtual void ResetClipRegion() = 0;
+  virtual void ResetClipRegion() {}
   virtual void SetClipRegion(const IRECT& r) = 0;
 
 public:
@@ -940,7 +940,7 @@ public:
   virtual const char* GetBundleID() { return ""; }
 
     /** Gets the machine device name */
-  virtual const char* GetDeviceName() = 0;
+  virtual const char* GetDeviceName() { return ""; }
 
 protected:
   /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */

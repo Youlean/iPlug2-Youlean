@@ -234,7 +234,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (void) setFrame:(CGRect) frame
 {
   [super setFrame:frame];
-  
+
   // During the first layout pass, we will not be in a view hierarchy, so we guess our scale
   CGFloat scale = [UIScreen mainScreen].scale;
   
@@ -244,12 +244,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   #ifdef IGRAPHICS_METAL
   CGSize drawableSize = frame.size;//self.bounds.size;
-  
+
   //mMTLLayer.frame.origin = self.bounds.origin;
   //mMTLLayer.frame.size = self.bounds.size;
+
   mMTLLayer.frame = frame;
 
-  
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
   drawableSize.width *= scale;
   drawableSize.height *= scale;
@@ -864,24 +864,50 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   NSDictionary* info = [notification userInfo];
   CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-  
-  UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
-  self.contentInset = contentInsets;
-  self.scrollIndicatorInsets = contentInsets;
-  
-  CGRect r = self.frame;
-  r.size.height -= kbSize.height;
-  
-  if (!CGRectContainsPoint(r, CGPointMake(mTextField.frame.origin.x + mTextField.frame.size.width, mTextField.frame.origin.y + mTextField.frame.size.height)) ) {
-    [self scrollRectToVisible:mTextField.frame animated:YES];
-  }
+
+//  UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+//  self.contentInset = contentInsets;
+//  self.scrollIndicatorInsets = contentInsets;
+
+//  CGRect r = self.frame;
+//  r.size.height -= kbSize.height;
+
+  //self.contentOffset = CGPointMake(0, kbSize.height);//mTextField.frame.origin;
+
+  CGRect metalFrame = mMTLLayer.frame;
+  metalFrame.origin = CGPointMake(0, kbSize.height);
+
+  [CATransaction begin];
+  [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+
+  mMTLLayer.frame = metalFrame;
+
+  [CATransaction commit];
+
+  self.contentOffset = CGPointMake(0, kbSize.height);
+
+//  if (!CGRectContainsPoint(r, CGPointMake(mTextField.frame.origin.x + mTextField.frame.size.width, mTextField.frame.origin.y + mTextField.frame.size.height)) ) {
+//    [self scrollRectToVisible:mTextField.frame animated:YES];
+//  }
 }
 
 - (void) keyboardWillBeHidden:(NSNotification*) notification
 {
-  UIEdgeInsets contentInsets = UIEdgeInsetsZero;
-  self.contentInset = contentInsets;
-  self.scrollIndicatorInsets = contentInsets;
+//  UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+//  self.contentInset = contentInsets;
+//  self.scrollIndicatorInsets = contentInsets;
+
+  CGRect metalFrame = mMTLLayer.frame;
+  metalFrame.origin = CGPointZero;
+
+  [CATransaction begin];
+  [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+
+  mMTLLayer.frame = metalFrame;
+
+  [CATransaction commit];
+
+  self.contentOffset = CGPointZero;
 }
 
 - (void) applicationDidEnterBackgroundNotification:(NSNotification*) notification

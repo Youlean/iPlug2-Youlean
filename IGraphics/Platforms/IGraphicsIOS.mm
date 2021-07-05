@@ -255,7 +255,7 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
 void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
-  ReleaseMouseCapture();
+  //ReleaseMouseCapture();
   CGRect areaRect = ToCGRect(this, bounds);
   [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }

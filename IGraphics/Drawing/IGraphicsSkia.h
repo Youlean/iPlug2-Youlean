@@ -138,6 +138,7 @@ private:
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const;
 
   void PathTransformSetMatrix(const IMatrix& m) override;
+  void ResetClipRegion() override {}
   void SetClipRegion(const IRECT& r) override;
     
   void RenderPath(SkPaint& paint);
