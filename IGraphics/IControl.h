@@ -299,6 +299,9 @@ public:
   /** Set the max number of characters that are allowed in text entry 
    * @param len The max number of characters allowed in text entry */
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
+
+  void SetTextEntryCharSet(const char* charSet) { mCharSet.Set(charSet); }
+  WDL_String& GetTextEntryCharSet() { return mCharSet; }
   
   /** Get the rectangular draw area for this control, within the graphics context
    * @return The control's bounds */
@@ -544,6 +547,7 @@ protected:
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
+  WDL_String mCharSet;
 
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
