@@ -210,8 +210,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   self.multipleTouchEnabled = NO;
   
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
+  //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+  //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -480,28 +480,39 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   if(pInTextEntry)
   {
-    const IParam* pParam = pInTextEntry->GetParam();
-    
-    if (pParam)
+    if (pInTextEntry->GetTextEntryCharSet().GetLength())
     {
       NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
-      
-      switch ( pParam->Type() )
-      {
-        case IParam::kTypeEnum:
-        case IParam::kTypeInt:
-        case IParam::kTypeBool:
-          [characterSet addCharactersInString:@"0123456789-+"];
-          break;
-        case IParam::kTypeDouble:
-          [characterSet addCharactersInString:@"0123456789.-+"];
-          break;
-        default:
-          break;
-      }
-      
+      [characterSet addCharactersInString:[NSString stringWithUTF8String:pInTextEntry->GetTextEntryCharSet().Get()]];
+
       if ([string rangeOfCharacterFromSet:characterSet.invertedSet].location != NSNotFound)
         return NO;
+    }
+    else
+    {
+      const IParam *pParam = pInTextEntry->GetParam();
+
+      if (pParam)
+      {
+        NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
+
+        switch (pParam->Type())
+        {
+          case IParam::kTypeEnum:
+          case IParam::kTypeInt:
+          case IParam::kTypeBool:
+            [characterSet addCharactersInString:@"0123456789-+"];
+            break;
+          case IParam::kTypeDouble:
+            [characterSet addCharactersInString:@"0123456789.-+"];
+            break;
+          default:
+            break;
+        }
+
+        if ([string rangeOfCharacterFromSet:characterSet.invertedSet].location != NSNotFound)
+          return NO;
+      }
     }
   }
   
@@ -538,6 +549,22 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect
 {
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Save Custom Preset" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+  [alert addAction:[UIAlertAction actionWithTitle:@"Done" style:UIAlertActionStyleDefault handler:nil]];
+
+  [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
+  {
+    textField.placeholder = [NSString stringWithUTF8String:str];
+    [textField setDelegate:self];
+    [textField becomeFirstResponder];
+    mTextField = textField;
+    mTextFieldLength = length;
+  }];
+
+  [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+
+
+  /*
   if (mTextField)
     return;
 
@@ -552,7 +579,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [mTextField setText:[NSString stringWithUTF8String:str]];
   [mTextField setTextColor:ToUIColor(text.mTextEntryFGColor)];
   [mTextField setBackgroundColor:ToUIColor(text.mTextEntryBGColor)];
-  [mTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
+  //[mTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
   [mTextField setDelegate:self];
   
   switch (text.mVAlign)
@@ -568,32 +595,34 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       break;
     default:
       break;
+
   }
   
   switch (text.mAlign)
   {
     case EAlign::Near:
-      [mTextField setTextAlignment: NSTextAlignmentLeft];
+      [mTextField setTextAlignment:NSTextAlignmentLeft];
       break;
     case EAlign::Center:
-      [mTextField setTextAlignment: NSTextAlignmentCenter];
+      [mTextField setTextAlignment:NSTextAlignmentCenter];
       break;
     case EAlign::Far:
-      [mTextField setTextAlignment: NSTextAlignmentRight];
+      [mTextField setTextAlignment:NSTextAlignmentRight];
       break;
     default:
       break;
   }
-  
+
   [self addSubview: mTextField];
   [mTextField becomeFirstResponder];
+ */
 }
 
 - (void) endUserInput
 {
   [self becomeFirstResponder];
   [mTextField setDelegate: nil];
-  [mTextField removeFromSuperview];
+  //[mTextField removeFromSuperview];
   mTextField = nullptr;
 }
 
@@ -860,10 +889,24 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return FALSE;
 }
 
+- (UIView *)rootView
+{
+  UIView *view = self;
+
+  while (view.superview != Nil)
+  {
+    view = view.superview;
+  }
+
+  return view;
+}
+
+/*
 - (void) keyboardWillShow:(NSNotification*) notification
 {
   NSDictionary* info = [notification userInfo];
   CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+  CGRect kbRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
 
 //  UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
 //  self.contentInset = contentInsets;
@@ -874,8 +917,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   //self.contentOffset = CGPointMake(0, kbSize.height);//mTextField.frame.origin;
 
+  CGRect screenRect = [[UIScreen mainScreen] bounds];
+  CGFloat screenHeight = screenRect.size.height;
+
+  UIView* parentView = [self rootView];
+  CGPoint textFrame = [self convertPoint:kbRect.origin fromCoordinateSpace:[UIScreen mainScreen].coordinateSpace];
+
+  CGFloat kbShift = (mTextField.frame.origin.y + mTextField.frame.size.height);
+  kbShift = (kbShift + kbSize.height) - screenHeight;
+  kbShift = kbShift < 0 ? 0 : kbShift;
+
   CGRect metalFrame = mMTLLayer.frame;
-  metalFrame.origin = CGPointMake(0, kbSize.height);
+  metalFrame.origin = CGPointMake(0, kbShift);
 
   [CATransaction begin];
   [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -884,7 +937,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   [CATransaction commit];
 
-  self.contentOffset = CGPointMake(0, kbSize.height);
+  [self scrollRectToVisible:mTextField.frame animated:YES];
+
+  self.contentOffset = CGPointMake(0, kbShift);
 
 //  if (!CGRectContainsPoint(r, CGPointMake(mTextField.frame.origin.x + mTextField.frame.size.width, mTextField.frame.origin.y + mTextField.frame.size.height)) ) {
 //    [self scrollRectToVisible:mTextField.frame animated:YES];
@@ -893,9 +948,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) keyboardWillBeHidden:(NSNotification*) notification
 {
-//  UIEdgeInsets contentInsets = UIEdgeInsetsZero;
-//  self.contentInset = contentInsets;
-//  self.scrollIndicatorInsets = contentInsets;
+  UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+  self.contentInset = contentInsets;
+  self.scrollIndicatorInsets = contentInsets;
 
   CGRect metalFrame = mMTLLayer.frame;
   metalFrame.origin = CGPointZero;
@@ -909,6 +964,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   self.contentOffset = CGPointZero;
 }
+*/
 
 - (void) applicationDidEnterBackgroundNotification:(NSNotification*) notification
 {
