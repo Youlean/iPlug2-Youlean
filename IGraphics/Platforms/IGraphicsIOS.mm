@@ -193,7 +193,7 @@ void IGraphicsIOS::RemovePlatformView(void* pView)
 
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
-  ReleaseMouseCapture();
+  //ReleaseMouseCapture();
   [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
