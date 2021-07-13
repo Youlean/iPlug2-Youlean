@@ -85,6 +85,8 @@ protected:
   
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  void CreatePlatformTextEntryAlert(int paramIdx, const char* title, const char* message, const char* buttonText, const char* placeholder, int length) override;
+
 
 private:
   void* mAUAudioUnit = nullptr;

@@ -259,6 +259,10 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   CGRect areaRect = ToCGRect(this, bounds);
   [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
+void IGraphicsIOS::CreatePlatformTextEntryAlert(int paramIdx, const char* title, const char* message , const char* buttonText, const char* placeholder, int length)
+{
+  [(IGRAPHICS_VIEW*) mView createTextEntryAlert: paramIdx: title: message: buttonText: placeholder: length];
+}
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {

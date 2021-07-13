@@ -430,6 +430,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self.displayLink invalidate];
   self.displayLink = nil;
   mTextField = nil;
+  mTextAlertActive = false;
   mGraphics = nil;
   mMenuTableController = nil;
   mMenuNavigationController = nil;
@@ -439,7 +440,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) textFieldDidEndEditing:(UITextField*) textField reason:(UITextFieldDidEndEditingReason) reason
 {
-  if(textField == mTextField)
+  if(textField == mTextField && !mTextAlertActive)
   {
     mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
     mGraphics->SetAllControlsDirty();
@@ -450,7 +451,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) textFieldShouldReturn:(UITextField*) textField
 {
-  if(textField == mTextField)
+  if(textField == mTextField && !mTextAlertActive)
   {
     mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
     mGraphics->SetAllControlsDirty();
@@ -547,24 +548,34 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return nullptr;
 }
 
-- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect
+- (void) createTextEntryAlert: (int) paramIdx : (const char*) title : (const char*) message : (const char*) buttonText : (const char*) placeholder : (int) length
 {
-  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Save Custom Preset" message:@"" preferredStyle:UIAlertControllerStyleAlert];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Done" style:UIAlertActionStyleDefault handler:nil]];
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:[NSString stringWithUTF8String:title] message:[NSString stringWithUTF8String:message] preferredStyle:UIAlertControllerStyleAlert];
+  [alert addAction:[UIAlertAction actionWithTitle:[NSString stringWithUTF8String:buttonText] style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+
+    mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
+    mGraphics->SetAllControlsDirty();
+    [self endUserInput];
+
+  }]];
+
+  [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
+  }]];
 
   [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
   {
-    textField.placeholder = [NSString stringWithUTF8String:str];
+    textField.text = [NSString stringWithUTF8String:placeholder];
     [textField setDelegate:self];
     [textField becomeFirstResponder];
     mTextField = textField;
     mTextFieldLength = length;
+    mTextAlertActive = true;
   }];
 
   [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
-
-
-  /*
+}
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect
+{
   if (mTextField)
     return;
 
@@ -615,7 +626,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   [self addSubview: mTextField];
   [mTextField becomeFirstResponder];
- */
 }
 
 - (void) endUserInput
@@ -624,6 +634,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [mTextField setDelegate: nil];
   //[mTextField removeFromSuperview];
   mTextField = nullptr;
+  mTextAlertActive = false;
 }
 
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler

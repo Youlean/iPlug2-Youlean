@@ -955,8 +955,10 @@ protected:
    * @param bounds \todo
    * @param str \todo */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
-  
-  /** Calls the platform backend to create the platform popup menu
+  virtual void CreatePlatformTextEntryAlert(int paramIdx, const char* title, const char* message, const char* buttonText, const char* placeholder, int length) {}
+
+
+    /** Calls the platform backend to create the platform popup menu
    * @param menu The source IPopupMenu
    * @param bounds \todo
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
@@ -1018,6 +1020,7 @@ public:
    * @param str A CString to specify the default text to display when the text entry box is opened (unless the control specified by the first argument is linked to a parameter)
    * @param valIdx The value index for the control value that the text entry relates to */
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "", int valIdx = 0);
+  void CreateTextEntryAlert(IControl& control, const char* title = "", const char* message = "", const char* buttonText = "", const char* placeholder = "", int valIdx = 0);
 
    /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here.
     * @param str The new value as a CString */

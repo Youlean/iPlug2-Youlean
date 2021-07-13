@@ -1894,6 +1894,17 @@ void IGraphics::StyleAllVectorControls(const IVStyle& style)
   }
 }
 
+void IGraphics::CreateTextEntryAlert(IControl& control, const char* title, const char* message, const char* buttonText, const char* placeholder, int valIdx)
+{
+  mInTextEntry = &control;
+  mTextEntryValIdx = valIdx;
+
+  int paramIdx = valIdx > kNoValIdx  ? control.GetParamIdx(valIdx) : kNoParameter;
+
+  CreatePlatformTextEntryAlert(paramIdx, title, message, buttonText, placeholder, control.GetTextEntryLength());
+
+  mInTextEntry->SetDirty(false);
+}
 void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str, int valIdx)
 {
   mInTextEntry = &control;
