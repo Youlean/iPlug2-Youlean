@@ -560,6 +560,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }]];
 
   [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
+    mGraphics->SetControlValueAfterTextEdit("");
+    mGraphics->SetAllControlsDirty();
+    [self endUserInput];
   }]];
 
   [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
