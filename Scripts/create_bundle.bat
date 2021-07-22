@@ -1,6 +1,6 @@
 REM ICON SETTER Adapted for VST3 and AAX based on CreatePackage.bat Copyright 2017 by Avid Technology, Inc.
-SET BundleDir="%~fn1"
-SET IconSource="%~fn2"
+SET BundleDir=%~fn1
+SET IconSource=%~fn2
 SET Format=%3
 
 echo Create AAX/VST3 Package Directories
