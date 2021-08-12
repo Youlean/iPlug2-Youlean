@@ -1100,7 +1100,7 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
 {
   ReleaseMouseCapture();
   
-  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
+  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), caption, text, static_cast<int>(type)));
   
   if(completionHandler)
     completionHandler(result);
