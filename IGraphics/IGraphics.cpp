@@ -849,6 +849,8 @@ IRECT IGraphics::DrawMultilineText(const IText& text, const char* multiLineText,
       break;
     }
   }
+
+  return textBounds;
 }
 
 IRECT IGraphics::MeasureMultilineText(const IText& text, const char* multiLineText, const IRECT& bounds, float lineHeight)
