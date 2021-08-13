@@ -644,7 +644,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
+float IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
   float fbounds[4];
   
@@ -674,19 +674,21 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   }
   
   nvgTextAlign(mVG, align);
-  nvgTextBounds(mVG, x, y, str, NULL, fbounds);
+  float width = nvgTextBounds(mVG, x, y, str, NULL, fbounds);
   
   r = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
+  
+  return width;
 }
 
 float IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
-  PrepareAndMeasureText(text, str, bounds, x, y);
+  float width = PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
   
-  return bounds.W();
+  return width;
 }
 
 void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)

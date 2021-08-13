@@ -342,6 +342,14 @@ public:
    * @param bounds The rectangular region in the graphics where you would like to draw the text */
   void DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
+    /** Draw multiline text to the graphics context in a specific rectangle. Gets text bounds
+   * @param text An IText struct containing font and text properties and layout info
+   * @param multiLineText The text string to draw
+   * @param bounds The rectangular region in the graphics where you would like to draw the text
+   * @param textLines Sets the line height */
+  IRECT DrawMultilineText(const IText& text, const char* multiLineText, const IRECT& bounds, float textLines = 1.0f, const IBlend* pBlend = 0);
+  IRECT MeasureMultilineText(const IText& text, const char* multiLineText, const IRECT& bounds, float textLines = 1.0f);
+
   /** Draw some text to the graphics context at a point
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw
@@ -354,6 +362,8 @@ public:
    * @param str The text string to draw
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
   virtual float MeasureText(const IText& text, const char* str, IRECT& bounds) const;
+
+
 
   /** Get the color at an X, Y location in the graphics context
    * @param x The X coordinate of the pixel

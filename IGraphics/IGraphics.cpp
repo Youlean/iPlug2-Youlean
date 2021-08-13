@@ -637,6 +637,430 @@ void IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds
   DoDrawText(text, str, bounds, pBlend);
 }
 
+IRECT IGraphics::DrawMultilineText(const IText& text, const char* multiLineText, const IRECT& bounds, float lineHeight, const IBlend* pBlend)
+{
+  auto CreateTextLinesVector = [&](const IText& textProps, const std::string& multiLineText, const IRECT& rect, std::vector<std::string> &textLines)
+  {
+    IRECT textRect;
+
+    textLines.resize(0);
+    textLines.push_back(std::string());
+
+    double stringSize = 0;
+
+    std::string tmpString;
+    double tmpStringSize = 0;
+
+    int nestedTabs = 0;
+
+    // Find space or new line or tab
+    for (int i = 0; i < multiLineText.size(); i++)
+    {
+      std::string c;
+      c.reserve(multiLineText.size());
+      c.push_back(multiLineText[i]);
+
+      if (c.back() == ' ')
+      {
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+
+          for (int j = 0; j < nestedTabs; j++)
+          {
+            float textAdvance = MeasureText(textProps, "    ", textRect);
+            stringSize += textAdvance;
+            textLines.back().append("    ");
+          }
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        float textAdvance = MeasureText(textProps, c.c_str(), textRect);
+        stringSize += textAdvance;
+
+        if (stringSize <= rect.W())
+          textLines.back().append(" ");
+      }
+      else if (c.back() == '\t')
+      {
+        bool checkNestedTabs = false;
+
+        if (i == 0)
+        {
+          checkNestedTabs = true;
+        }
+        else if (i > 0)
+        {
+          if (multiLineText[i - 1] == '\n')
+            checkNestedTabs = true;
+          else
+            checkNestedTabs = false;
+        }
+
+        if (checkNestedTabs)
+        {
+          for (int j = i; j < multiLineText.size(); j++)
+          {
+            if (multiLineText[j] == '\t') nestedTabs++;
+            else break;
+          }
+        }
+
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        float textAdvance = MeasureText(textProps, "    ", textRect);
+        stringSize += textAdvance;
+
+        if (stringSize <= rect.W())
+          textLines.back().append("    ");
+      }
+      else if (c.back() == '\n')
+      {
+        nestedTabs = 0;
+
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        textLines.push_back(std::string());
+        stringSize = 0;
+      }
+      else
+      {
+        if (stringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+
+          for (int j = 0; j < nestedTabs; j++)
+          {
+
+            float textAdvance = MeasureText(textProps, "    ", textRect);
+            stringSize += textAdvance;
+            textLines.back().append("    ");
+          }
+        }
+
+        float textAdvance = MeasureText(textProps, c.c_str(), textRect);
+
+        tmpStringSize += textAdvance;
+        tmpString.append(c);
+      }
+    }
+
+    if (stringSize + tmpStringSize > rect.W())
+    {
+      textLines.push_back(std::string());
+      stringSize = 0;
+
+      for (int j = 0; j < nestedTabs; j++)
+      {
+        float textAdvance = MeasureText(textProps, "    ", textRect);
+        stringSize += textAdvance;
+        textLines.back().append("    ");
+      }
+    }
+
+    textLines.back().append(tmpString);
+  };
+
+  std::vector<std::string> textStringLines;
+
+  CreateTextLinesVector(text, multiLineText, bounds, textStringLines);
+
+  IRECT textRectMeasurement;
+  MeasureText(text, "TEXT", textRectMeasurement);
+
+  float fontHeight = textRectMeasurement.H() * lineHeight;
+  int lineNumber = (int)textStringLines.size();
+
+  IText multilineTextProps = text;
+  multilineTextProps.mVAlign = EVAlign::Middle;
+
+  IRECT textBounds;
+
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        IRECT textRect = bounds;
+        textRect.B = bounds.T + (i + 1) * fontHeight;
+        textRect.T = textRect.B - fontHeight;
+        textBounds = textBounds.Union(textRect);
+
+        DrawText(multilineTextProps, textStringLines[i].c_str(), textRect, pBlend);
+      }
+      break;
+    }
+    case EVAlign::Bottom:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        int indexInv = (lineNumber - 1) - i;
+
+        IRECT textRect = bounds;
+        textRect.T = bounds.B - (i + 1) * fontHeight;
+        textRect.B = textRect.T + fontHeight;
+        textBounds = textBounds.Union(textRect);
+
+        DrawText(multilineTextProps, textStringLines[indexInv].c_str(), textRect, pBlend);
+      }
+      break;
+    }
+    case EVAlign::Middle:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        float top = (bounds.H() - lineNumber * fontHeight) / 2 + bounds.T;
+
+        IRECT textRect = bounds;
+        textRect.B = top + (i + 1) * fontHeight;
+        textRect.T = textRect.B - fontHeight;
+        textBounds = textBounds.Union(textRect);
+
+        DrawText(multilineTextProps, textStringLines[i].c_str(), textRect, pBlend);
+      }
+      break;
+    }
+  }
+}
+
+IRECT IGraphics::MeasureMultilineText(const IText& text, const char* multiLineText, const IRECT& bounds, float lineHeight)
+{
+  auto CreateTextLinesVector = [&](const IText& textProps, const std::string& multiLineText, const IRECT& rect, std::vector<std::string> &textLines)
+  {
+    IRECT textRect;
+
+    textLines.resize(0);
+    textLines.push_back(std::string());
+
+    double stringSize = 0;
+
+    std::string tmpString;
+    double tmpStringSize = 0;
+
+    int nestedTabs = 0;
+
+    // Find space or new line or tab
+    for (int i = 0; i < multiLineText.size(); i++)
+    {
+      std::string c;
+      c.reserve(multiLineText.size());
+      c.push_back(multiLineText[i]);
+
+      if (c.back() == ' ')
+      {
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+
+          for (int j = 0; j < nestedTabs; j++)
+          {
+            float textAdvance = MeasureText(textProps, "    ", textRect);
+            stringSize += textAdvance;
+            textLines.back().append("    ");
+          }
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        float textAdvance = MeasureText(textProps, c.c_str(), textRect);
+        stringSize += textAdvance;
+
+        if (stringSize <= rect.W())
+          textLines.back().append(" ");
+      }
+      else if (c.back() == '\t')
+      {
+        bool checkNestedTabs = false;
+
+        if (i == 0)
+        {
+          checkNestedTabs = true;
+        }
+        else if (i > 0)
+        {
+          if (multiLineText[i - 1] == '\n')
+            checkNestedTabs = true;
+          else
+            checkNestedTabs = false;
+        }
+
+        if (checkNestedTabs)
+        {
+          for (int j = i; j < multiLineText.size(); j++)
+          {
+            if (multiLineText[j] == '\t') nestedTabs++;
+            else break;
+          }
+        }
+
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        float textAdvance = MeasureText(textProps, "    ", textRect);
+        stringSize += textAdvance;
+
+        if (stringSize <= rect.W())
+          textLines.back().append("    ");
+      }
+      else if (c.back() == '\n')
+      {
+        nestedTabs = 0;
+
+        if (stringSize + tmpStringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+        }
+
+        textLines.back().append(tmpString);
+        stringSize += tmpStringSize;
+
+        tmpString.resize(0);
+        tmpStringSize = 0;
+
+        textLines.push_back(std::string());
+        stringSize = 0;
+      }
+      else
+      {
+        if (stringSize > rect.W())
+        {
+          textLines.push_back(std::string());
+          stringSize = 0;
+
+          for (int j = 0; j < nestedTabs; j++)
+          {
+
+            float textAdvance = MeasureText(textProps, "    ", textRect);
+            stringSize += textAdvance;
+            textLines.back().append("    ");
+          }
+        }
+
+        float textAdvance = MeasureText(textProps, c.c_str(), textRect);
+
+        tmpStringSize += textAdvance;
+        tmpString.append(c);
+      }
+    }
+
+    if (stringSize + tmpStringSize > rect.W())
+    {
+      textLines.push_back(std::string());
+      stringSize = 0;
+
+      for (int j = 0; j < nestedTabs; j++)
+      {
+        float textAdvance = MeasureText(textProps, "    ", textRect);
+        stringSize += textAdvance;
+        textLines.back().append("    ");
+      }
+    }
+
+    textLines.back().append(tmpString);
+  };
+
+  std::vector<std::string> textStringLines;
+
+  CreateTextLinesVector(text, multiLineText, bounds, textStringLines);
+
+  IRECT textRectMeasurement;
+  MeasureText(text, "TEXT", textRectMeasurement);
+
+  float fontHeight = textRectMeasurement.H() * lineHeight;
+  int lineNumber = (int)textStringLines.size();
+
+  IText multilineTextProps = text;
+  multilineTextProps.mVAlign = EVAlign::Middle;
+
+  IRECT textBounds;
+
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        IRECT textRect = bounds;
+        textRect.B = bounds.T + (i + 1) * fontHeight;
+        textRect.T = textRect.B - fontHeight;
+        textBounds = textBounds.Union(textRect);
+      }
+      break;
+    }
+    case EVAlign::Bottom:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        int indexInv = (lineNumber - 1) - i;
+
+        IRECT textRect = bounds;
+        textRect.T = bounds.B - (i + 1) * fontHeight;
+        textRect.B = textRect.T + fontHeight;
+        textBounds = textBounds.Union(textRect);
+      }
+      break;
+    }
+    case EVAlign::Middle:
+    {
+      for (int i = 0; i < lineNumber; i++)
+      {
+        float top = (bounds.H() - lineNumber * fontHeight) / 2 + bounds.T;
+
+        IRECT textRect = bounds;
+        textRect.B = top + (i + 1) * fontHeight;
+        textRect.T = textRect.B - fontHeight;
+        textBounds = textBounds.Union(textRect);
+      }
+      break;
+    }
+  }
+
+  return textBounds;
+}
+
 float IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   if (!str || str[0] == '\0')
