@@ -3361,3 +3361,8 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
     }
   #endif
   }
+
+void IGraphics::AppOpenedWithURL(const char *url)
+{
+  ForAllControls(&IControl::AppOpenedWithURL, url);
+}

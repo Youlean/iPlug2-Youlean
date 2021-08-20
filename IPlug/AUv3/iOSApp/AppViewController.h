@@ -14,5 +14,6 @@
 
 - (void) SetIOSAudioEngineState:(int) state;
 - (void) AUv3AppState:(int) state;
+- (void) AppOpenedWithURL:(NSURL *) url;
 - (void*) GetAUPlayer;
 @end

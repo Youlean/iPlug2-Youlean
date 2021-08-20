@@ -891,6 +891,8 @@ public:
    * @param errMsgOnFailure \todo ?
    * @return /c true on success */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
+  
+  virtual bool OpenAppFromURL(const char* url) = 0;
 
   /** @return A CString representing the Platform API in use e.g. "macOS" */
   virtual const char* GetPlatformAPIStr() { return ""; }
@@ -1762,6 +1764,7 @@ public:
   virtual void SetAUAudioUnit(void* pAUAudioUnit) {}
   virtual void StartAUV3AppDSP() {}
   virtual void StopAUV3AppDSP() {}
+  void AppOpenedWithURL(const char* url);
 
   EIOSAudioEngineState GetIOSAudioEngineState() { return mIOSAudioEngineState; }
   void SetIOSAudioEngineState(EIOSAudioEngineState state) { mIOSAudioEngineState = state; }

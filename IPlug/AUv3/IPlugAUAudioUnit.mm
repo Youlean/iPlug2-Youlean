@@ -135,6 +135,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void)AppOpenedWithURL:(NSURL *)url
+{
+  if (mPlug->GetUI())
+  {
+    const char* cUrl = [url.absoluteString UTF8String];
+    mPlug->GetUI()->AppOpenedWithURL(cUrl);
+  }
+}
+
+
 - (void)setAVAudioEngine: (void*)engine
 {
   _avEngine = engine;

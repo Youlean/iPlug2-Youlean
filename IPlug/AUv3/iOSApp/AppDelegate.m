@@ -39,6 +39,12 @@
   return (AppViewController*)topViewController;
 }
 
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+{
+  AppViewController *viewController = [self GetUIViewController];
+  [viewController AppOpenedWithURL:url];
+  return YES;
+}
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];

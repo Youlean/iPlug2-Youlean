@@ -285,6 +285,25 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
   }
   return false;
 }
+bool IGraphicsIOS::OpenAppFromURL(const char* url)
+{
+  if (url)
+  {
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    
+    UIResponder* pResponder = (UIResponder*) mView;
+    while(pResponder) {
+      if ([pResponder respondsToSelector: @selector(openURL:)])
+        [pResponder performSelector: @selector(openURL:) withObject: URL];
+      
+      pResponder = [pResponder nextResponder];
+    }
+    
+    return true;
+  }
+
+  return false;
+}
 
 void* IGraphicsIOS::GetWindow()
 {

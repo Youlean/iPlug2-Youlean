@@ -50,6 +50,17 @@
   }
 }
 
+- (void)AppOpenedWithURL:(NSURL *)url
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+
+  if (au)
+  {
+    [au AppOpenedWithURL: url];
+  }
+}
+
+
 - (void*) GetAUPlayer
 {
   return (__bridge void*)player;

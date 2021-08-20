@@ -178,6 +178,8 @@ public:
   /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
 
+  virtual void AppOpenedWithURL(const char *url) {}
+
   /** Draw the control to the graphics context. 
    * @param g The graphics context to which this control belongs. */
   virtual void Draw(IGraphics& g) = 0;

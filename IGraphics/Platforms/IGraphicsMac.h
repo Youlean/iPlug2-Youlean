@@ -56,6 +56,8 @@ public:
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
     
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+  
+  bool OpenAppFromURL(const char* url) override;
 
   void* GetWindow() override;
 

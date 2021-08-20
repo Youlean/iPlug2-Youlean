@@ -37,6 +37,7 @@
 - (void) SetIOSAudioEngineState:(int) state;
 - (void) AUv3AppState:(int) state;
 - (void) SetAppHostInfo;
+- (void) AppOpenedWithURL:(NSURL *) url;
 
 - (void)setAVAudioEngine: (void*)engine;
 - (void)startAudioPlayer;

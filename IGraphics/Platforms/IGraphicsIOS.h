@@ -54,6 +54,8 @@ public:
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
+  bool OpenAppFromURL(const char* url) override;
+  
   void* GetWindow() override;
   IRECT GetSafeDrawArea() override;
   
