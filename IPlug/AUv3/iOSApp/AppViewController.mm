@@ -110,7 +110,7 @@
 
     AVAudioEngine *engine = [self->player getAudioEngine];
     [self->iplugViewController.audioUnit setAVAudioEngine:(__bridge void *) engine];
-    [self->iplugViewController.audioUnit SetAppHostInfo];
+    [self->iplugViewController.audioUnit SetIsHostApp: YES];
     [self embedPlugInView];
     [self->iplugViewController.audioUnit SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kActive];
   }];

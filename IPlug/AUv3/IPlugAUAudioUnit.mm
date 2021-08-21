@@ -127,11 +127,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
-- (void) SetAppHostInfo
+- (void) SetIsHostApp:(BOOL) isApp;
 {
-  if (mPlug)
+  if (mPlug && mPlug->GetHost() == EHost::kHostUninit && isApp)
   {
     mPlug->SetHost("auv3app", 0);
+  }
+  
+  if (mPlug && mPlug->GetHost() == EHost::kHostUninit && !isApp)
+  {
+    mPlug->SetHost("unknown", 0);
   }
 }
 

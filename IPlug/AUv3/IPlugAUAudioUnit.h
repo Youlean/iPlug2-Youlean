@@ -36,7 +36,7 @@
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
 - (void) SetIOSAudioEngineState:(int) state;
 - (void) AUv3AppState:(int) state;
-- (void) SetAppHostInfo;
+- (void) SetIsHostApp:(BOOL) isApp;
 - (void) AppOpenedWithURL:(NSURL *) url;
 
 - (void)setAVAudioEngine: (void*)engine;

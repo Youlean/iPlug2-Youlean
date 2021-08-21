@@ -33,7 +33,7 @@
 {
   self = [super initWithNibName:@"IPlugAUViewController"
                          bundle:[NSBundle bundleForClass:NSClassFromString(@"IPlugAUViewController")]];
-
+  
   return self;
 }
 
@@ -82,6 +82,8 @@
     int viewHeight = (int) [self.audioUnit height];
     self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
     self.view.backgroundColor = UIColor.blackColor;
+    
+    [self.audioUnit SetIsHostApp: NO];
   }
 }
 
