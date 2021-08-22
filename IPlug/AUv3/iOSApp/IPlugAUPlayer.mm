@@ -29,6 +29,7 @@
   if (self) {
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
+    audioPlayerDidInit = NO;
   }
   
 #if TARGET_OS_IPHONE
@@ -63,15 +64,23 @@
   
   AVAudioSession* session = [AVAudioSession sharedInstance];
   [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
-//  [session overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
   [session setPreferredSampleRate:44100. error:&error];
   [session setPreferredIOBufferDuration:0.005 error:&error];
   
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
   
-//  AVAudioFormat* formatIn = [mainMixer inputFormatForBus:0];
-//  AVAudioFormat* formatOut = [mainMixer outputFormatForBus:0];
+  completionBlock();
+}
+
+- (void) initAudioPlayer
+{
+  if (audioPlayerDidInit)
+    return;
+  
+  audioPlayerDidInit = true;
+  
+  AVAudioSession* session = [AVAudioSession sharedInstance];
   
   double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
   
@@ -81,29 +90,23 @@
   
   [audioEngine attachNode:avAudioUnit];
   
-  //double s1 = session.sampleRate;
-  //double s2 = formatIn.sampleRate;
-  //double s3 = formatOut.sampleRate;
-
-  //double s4 = formatI.sampleRate;
-  //double s5 = formatO.sampleRate;
-  
-  //[audioEngine connect:avAudioUnit to:mainMixer format: formatI];
-  
 #if PLUG_TYPE==0
   [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: formatI];
 #endif
   [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: formatO];
-
+  
   [self activate];
   [self startEngine];
-  
-  completionBlock();
 }
 
 - (AVAudioEngine *)getAudioEngine
 {
   return audioEngine;
+}
+
+- (AVAudioUnit*) getAVAudioUnit
+{
+  return avAudioUnit;
 }
 
 - (void) activate

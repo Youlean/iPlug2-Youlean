@@ -50,6 +50,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   NSArray<AUAudioUnitPreset*>* mPresets;
   AUAudioUnitPreset *mCurrentPreset;
   NSInteger mCurrentFactoryPresetIndex;
+  BOOL audioPlayerDidInit;
+  AVAudioUnit *avAudioUnit;
 }
 
 @synthesize parameterTree = mParameterTree;
@@ -149,13 +151,46 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
-
 - (void)setAVAudioEngine: (void*)engine
 {
   _avEngine = engine;
 }
+- (void)setAVAudioUnit: (void*)auUnit
+{
+  avAudioUnit = (__bridge AVAudioUnit*)auUnit;
+}
+- (void)initAudioPlayer
+{
+  if (audioPlayerDidInit || !avAudioUnit)
+    return;
+  
+  audioPlayerDidInit = true;
+  
+  AVAudioEngine *audioEngine = (__bridge AVAudioEngine *)_avEngine;
+  AVAudioSession* session = [AVAudioSession sharedInstance];
+  
+  double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
+  
+  AVAudioFormat* formatI = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.inputNumberOfChannels];
+  
+  AVAudioFormat* formatO = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.outputNumberOfChannels];
+  
+  [audioEngine attachNode:avAudioUnit];
+  
+#if PLUG_TYPE==0
+  [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: formatI];
+#endif
+  [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: formatO];
+  
+  [self startAudioPlayer];
+  [self stopAudioPlayer];
+  
+  [self SetIOSAudioEngineState: (int)iplug::igraphics::IGraphics::EIOSAudioEngineState::kActive];
+}
 - (void)startAudioPlayer
 {
+  [self initAudioPlayer];
+  
   AVAudioEngine *engine = (__bridge AVAudioEngine *)_avEngine;
 
   if (engine)
@@ -177,6 +212,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 }
 - (void)stopAudioPlayer
 {
+  [self initAudioPlayer];
+  
   AVAudioEngine *engine = (__bridge AVAudioEngine *)_avEngine;
 
   if (engine)
@@ -202,6 +239,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   if (self == nil) { return nil; }
 
   _avEngine = nullptr;
+  avAudioUnit = nil;
+  audioPlayerDidInit = NO;
   
   // Create a DSP kernel to handle the signal processing.
   mPlug = MakePlug(InstanceInfo());

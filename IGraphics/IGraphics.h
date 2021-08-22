@@ -1762,6 +1762,7 @@ public:
 
   // AUv3 app host stuff
   virtual void SetAUAudioUnit(void* pAUAudioUnit) {}
+  virtual void InitAUV3AppDSP() {}
   virtual void StartAUV3AppDSP() {}
   virtual void StopAUV3AppDSP() {}
   void AppOpenedWithURL(const char* url);

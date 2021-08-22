@@ -13,6 +13,9 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface IPlugAUPlayer : NSObject
+{
+  BOOL audioPlayerDidInit;
+}
 
 @property (assign) AUAudioUnit* currentAudioUnit;
 
@@ -21,6 +24,9 @@
 - (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription) desc completion:(void (^) (void)) completionBlock;
 
 - (AVAudioEngine*) getAudioEngine;
+- (AVAudioUnit*) getAVAudioUnit;
+
+- (void) initAudioPlayer;
 
 - (void) activate;
 - (void) deactivate;

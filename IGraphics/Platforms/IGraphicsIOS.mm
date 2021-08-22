@@ -95,6 +95,15 @@ IGraphicsIOS::~IGraphicsIOS()
   CloseWindow();
 }
 
+void IGraphicsIOS::InitAUV3AppDSP()
+{
+  IPlugAUAudioUnit* au = (IPlugAUAudioUnit*)mAUAudioUnit;
+  
+  if (au)
+  {
+    [au initAudioPlayer];
+  }
+}
 void IGraphicsIOS::StartAUV3AppDSP()
 {
   IPlugAUAudioUnit* au = (IPlugAUAudioUnit*)mAUAudioUnit;

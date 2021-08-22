@@ -109,10 +109,15 @@
     self->iplugViewController.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
 
     AVAudioEngine *engine = [self->player getAudioEngine];
+    AVAudioUnit* avAudioUnit = [self->player getAVAudioUnit];
+    
     [self->iplugViewController.audioUnit setAVAudioEngine:(__bridge void *) engine];
+    [self->iplugViewController.audioUnit setAVAudioUnit:(__bridge void *) avAudioUnit];
     [self->iplugViewController.audioUnit SetIsHostApp: YES];
     [self embedPlugInView];
-    [self->iplugViewController.audioUnit SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kActive];
+    
+    //[player initAudioPlayer];
+    [self->iplugViewController.audioUnit SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kStopped];
   }];
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];

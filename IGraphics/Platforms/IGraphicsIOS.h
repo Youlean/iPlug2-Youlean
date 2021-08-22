@@ -76,6 +76,7 @@ public:
 
   // AUv3 app host stuff
   void SetAUAudioUnit(void* pAUAudioUnit) override { mAUAudioUnit = pAUAudioUnit; }
+  void InitAUV3AppDSP() override;
   void StartAUV3AppDSP() override;
   void StopAUV3AppDSP() override;
 

@@ -40,6 +40,9 @@
 - (void) AppOpenedWithURL:(NSURL *) url;
 
 - (void)setAVAudioEngine: (void*)engine;
+- (void)setAVAudioUnit: (void*)auUnit;
+
+- (void)initAudioPlayer;
 - (void)startAudioPlayer;
 - (void)stopAudioPlayer;
 
