@@ -47,6 +47,12 @@
   #if defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsNanoVG
+  #elif defined IGRAPHICS_CAIRO
+  #include "IGraphicsCairo.h"
+  #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCairo
+  #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+  #error When using IGRAPHICS_CAIRO, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
+  #endif
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia

@@ -653,6 +653,8 @@ void IGraphicsMac::CreatePlatformImGui()
 
 #if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
+#elif defined IGRAPHICS_CAIRO
+  #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
 #else

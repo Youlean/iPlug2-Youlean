@@ -31,7 +31,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
+#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif
@@ -912,7 +912,7 @@ public:
   /** Set the platform draw context
    * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
    * @param pContext void pointer to CGContextRef or HDC */
-  void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
+  virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
   /** Get the platform level draw context - an HDC or CGContextRef
    * @return void pointer to an HDC or CGContext */

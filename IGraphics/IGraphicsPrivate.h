@@ -42,6 +42,15 @@
 
 #if defined IGRAPHICS_NANOVG
   #define BITMAP_DATA_TYPE int;
+#elif defined IGRAPHICS_CAIRO
+#if defined OS_MAC || defined OS_LINUX
+#include "cairo/cairo.h"
+#elif defined OS_WIN
+#include "cairo/src/cairo.h"
+#else
+#error NOT IMPLEMENTED
+#endif
+#define BITMAP_DATA_TYPE cairo_surface_t*
 #elif defined IGRAPHICS_SKIA
   #pragma warning( push )
   #pragma warning( disable : 4244 )
