@@ -2230,6 +2230,8 @@ void IGraphicsWin::VBlankNotify()
   #ifdef IGRAPHICS_GL
     #include "glad.c"
   #endif
+#elif defined IGRAPHICS_CAIRO
+#include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE

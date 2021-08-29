@@ -11,7 +11,6 @@
 #pragma once
 
 #include "IPlugPlatform.h"
-#include "IGraphics.h"
 
 #ifdef OS_MAC
   #include "cairo/cairo.h"
@@ -32,6 +31,8 @@
 #else
   #error NOT IMPLEMENTED
 #endif
+
+#include "IGraphics.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE

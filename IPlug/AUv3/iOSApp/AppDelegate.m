@@ -21,30 +21,43 @@
 {
   UIViewController *topViewController = self.window.rootViewController;
   
-  while (true)
+  if ([topViewController isKindOfClass:[AppViewController class]])
+    return (AppViewController*)topViewController;
+  
+  while (![topViewController isKindOfClass:[AppViewController class]])
   {
-    if (topViewController.presentedViewController) {
+    if (topViewController.presentedViewController)
+    {
       topViewController = topViewController.presentedViewController;
-    } else if ([topViewController isKindOfClass:[UINavigationController class]]) {
+    }
+    else if ([topViewController isKindOfClass:[UINavigationController class]])
+    {
       UINavigationController *nav = (UINavigationController *)topViewController;
       topViewController = nav.topViewController;
-    } else if ([topViewController isKindOfClass:[UITabBarController class]]) {
+    }
+    else if ([topViewController isKindOfClass:[UITabBarController class]])
+    {
       UITabBarController *tab = (UITabBarController *)topViewController;
       topViewController = tab.selectedViewController;
-    } else {
-      break;
+    }
+    else
+    {
+      return nil;
     }
   }
   
   return (AppViewController*)topViewController;
 }
 
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
-{
-  AppViewController *viewController = [self GetUIViewController];
-  [viewController AppOpenedWithURL:url];
-  return YES;
-}
+//- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+//{
+//  AppViewController *viewController = [self GetUIViewController];
+//
+//  if (viewController)
+//    [viewController AppOpenedWithURL:url];
+//  return YES;
+//}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
@@ -54,31 +67,41 @@
 - (void)applicationWillResignActive:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
-  [viewController AUv3AppState: 0];
+  
+  if (viewController)
+    [viewController AUv3AppState: 0];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
-  [viewController AUv3AppState: 1];
+  
+  if (viewController)
+    [viewController AUv3AppState: 1];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
-  [viewController AUv3AppState: 2];
+  
+  if (viewController)
+    [viewController AUv3AppState: 2];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
-  [viewController AUv3AppState: 3];
+  
+  if (viewController)
+    [viewController AUv3AppState: 3];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   AppViewController *viewController = [self GetUIViewController];
-  [viewController AUv3AppState: 4];
+  
+  if (viewController)
+    [viewController AUv3AppState: 4];
 }
 
 @end
