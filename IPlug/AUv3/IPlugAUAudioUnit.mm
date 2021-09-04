@@ -168,19 +168,46 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
   AVAudioEngine *audioEngine = (__bridge AVAudioEngine *)_avEngine;
   AVAudioSession* session = [AVAudioSession sharedInstance];
-  
-  double inputNodeSamplerate = [audioEngine.inputNode inputFormatForBus:0].sampleRate;
-  
-  AVAudioFormat* formatI = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.inputNumberOfChannels];
-  
-  AVAudioFormat* formatO = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:inputNodeSamplerate channels:(int)session.outputNumberOfChannels];
+  AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   
   [audioEngine attachNode:avAudioUnit];
   
-#if PLUG_TYPE==0
-  [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: formatI];
+#if PLUG_TYPE != 1
+  AVAudioFormat* micInputFormat = [[audioEngine inputNode] inputFormatForBus:0];
+  AVAudioFormat* pluginInputFormat = [avAudioUnit inputFormatForBus:0];
 #endif
-  [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: formatO];
+  
+  AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
+  
+  NSLog(@"Session SR: %i", int(session.sampleRate));
+  NSLog(@"Session IO Buffer: %i", int((session.IOBufferDuration * session.sampleRate)+0.5));
+  
+#if PLUG_TYPE != 1
+  NSLog(@"Mic Input SR: %i", int(micInputFormat.sampleRate));
+  NSLog(@"Mic Input Chans: %i", micInputFormat.channelCount);
+  NSLog(@"Plugin Input SR: %i", int(pluginInputFormat.sampleRate));
+  NSLog(@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
+#endif
+  
+#if PLUG_TYPE != 1
+  if (pluginInputFormat != nil)
+    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
+#endif
+  
+  auto numOutputBuses = [avAudioUnit numberOfOutputs];
+  
+  if (numOutputBuses > 1)
+  {
+    // Assume all output buses are the same format
+    for (int busIdx=0; busIdx<numOutputBuses; busIdx++)
+    {
+      [audioEngine connect:avAudioUnit to:mainMixer fromBus: busIdx toBus:[mainMixer nextAvailableInputBus] format:pluginOutputFormat];
+    }
+  }
+  else
+  {
+    [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: pluginOutputFormat];
+  }
   
   [self startAudioPlayer];
   [self stopAudioPlayer];
@@ -189,7 +216,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 }
 - (void)startAudioPlayer
 {
+#ifdef IPLUG_DISABLE_AU_PLAYER_AUTO_START
   [self initAudioPlayer];
+#endif
   
   AVAudioEngine *engine = (__bridge AVAudioEngine *)_avEngine;
 
@@ -703,6 +732,12 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     }
 
     if (err != 0) { return err; }
+    
+    if (frameCount > pPlug->GetBlockSize())
+    {
+      err = kAudioUnitErr_TooManyFramesToProcess;
+      return err;
+    }
     
     AudioBufferList* pInAudioBufferList = nil;
     
