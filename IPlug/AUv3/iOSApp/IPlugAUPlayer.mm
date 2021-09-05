@@ -56,21 +56,6 @@
 
 - (void) onAudioUnitInstantiated:(AVAudioUnit* __nullable) audioUnit error:(NSError* __nullable) error completion:(void (^) (void))completionBlock
 {
-//  if (audioUnit == nil)
-//    return;
-//
-//  avAudioUnit = audioUnit;
-//
-//  self.currentAudioUnit = avAudioUnit.AUAudioUnit;
-//
-//  AVAudioSession* session = [AVAudioSession sharedInstance];
-//  [session setCategory: AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
-//  [session setPreferredSampleRate:44100. error:&error];
-//  [session setPreferredIOBufferDuration:0.005 error:&error];
-//
-//  AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
-//  mainMixer.outputVolume = 1;
-  
   if (audioUnit == nil)
     return;
   
@@ -128,7 +113,7 @@
 #endif
   
 #if PLUG_TYPE != 1
-  if (pluginInputFormat != nil)
+  if (micInputFormat != nil)
     [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
 #endif
   
