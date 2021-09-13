@@ -77,13 +77,15 @@
 
     if(view == nil)
       self.view = [[GenericUI alloc] initWithAUPlugin:self.audioUnit];
-      
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
     int viewWidth = (int) [self.audioUnit width];
     int viewHeight = (int) [self.audioUnit height];
     self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
     self.view.backgroundColor = UIColor.blackColor;
     
     [self.audioUnit SetIsHostApp: NO];
+    });
   }
 }
 
