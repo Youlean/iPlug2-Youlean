@@ -48,6 +48,13 @@ public:
     mData.Resize(size + 1);
   }
 
+  /** \todo  */
+  void ClearAllElements()
+  {
+    mWriteIndex.store(0);
+    mReadIndex.store(0);
+  }
+
   /** \todo 
    * @param item \todo
    * @return true \todo
