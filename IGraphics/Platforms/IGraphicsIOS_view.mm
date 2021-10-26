@@ -1006,6 +1006,25 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
+- (BOOL) shareFile: (NSURL*) url
+{
+  NSArray *activityItems = @[url];
+  
+  UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+  
+  if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
+  {
+    activityVC.modalPresentationStyle = UIModalPresentationPopover;
+    activityVC.popoverPresentationController.sourceView = self;
+    activityVC.popoverPresentationController.canOverlapSourceViewRect = YES;
+    activityVC.popoverPresentationController.permittedArrowDirections = 0;
+  }
+
+  [self.window.rootViewController presentViewController:activityVC animated:YES completion:nil];
+  
+  return true;
+}
+
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {

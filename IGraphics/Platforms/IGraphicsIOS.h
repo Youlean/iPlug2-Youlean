@@ -53,8 +53,8 @@ public:
   void MoveMouseCursor(float x, float y) override {}; // NOOP
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
-  
   bool OpenAppFromURL(const char* url) override;
+  bool ShareFile(const char* fileUrl) override;
   
   void* GetWindow() override;
   IRECT GetSafeDrawArea() override;

@@ -893,6 +893,7 @@ public:
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
   
   virtual bool OpenAppFromURL(const char* url) { return false; }
+  virtual bool ShareFile(const char* fileUrl) { return false; }
 
   /** @return A CString representing the Platform API in use e.g. "macOS" */
   virtual const char* GetPlatformAPIStr() { return ""; }

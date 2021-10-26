@@ -313,6 +313,18 @@ bool IGraphicsIOS::OpenAppFromURL(const char* url)
 
   return false;
 }
+bool IGraphicsIOS::ShareFile(const char* fileUrl)
+{
+  if (fileUrl)
+  {
+    NSString *fileUrlString = [NSString stringWithCString:fileUrl encoding:NSUTF8StringEncoding];
+    NSURL *URL = [NSURL fileURLWithPath: fileUrlString];
+    
+    return [(IGRAPHICS_VIEW*) mView shareFile: URL];
+  }
+  
+  return false;
+}
 
 void* IGraphicsIOS::GetWindow()
 {
