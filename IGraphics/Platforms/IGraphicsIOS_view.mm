@@ -1011,17 +1011,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSArray *activityItems = @[url];
   
   UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
-  
+
   if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
   {
-    activityVC.modalPresentationStyle = UIModalPresentationPopover;
+    //activityVC.modalPresentationStyle = UIModalPresentationPopover;
     activityVC.popoverPresentationController.sourceView = self;
-    activityVC.popoverPresentationController.canOverlapSourceViewRect = YES;
+    //activityVC.popoverPresentationController.canOverlapSourceViewRect = YES;
     activityVC.popoverPresentationController.permittedArrowDirections = 0;
   }
-
+      
   [self.window.rootViewController presentViewController:activityVC animated:YES completion:nil];
-  
+
   return true;
 }
 
