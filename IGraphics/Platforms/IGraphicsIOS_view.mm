@@ -1010,18 +1010,21 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   NSArray *activityItems = @[url];
   
-  UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+  // Maybe creating custom activity? https://www.py4u.net/discuss/1345833
+  dispatch_async(dispatch_get_main_queue(), ^{
+    UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
 
-  if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
-  {
-    //activityVC.modalPresentationStyle = UIModalPresentationPopover;
-    activityVC.popoverPresentationController.sourceView = self;
-    //activityVC.popoverPresentationController.canOverlapSourceViewRect = YES;
-    activityVC.popoverPresentationController.permittedArrowDirections = 0;
-  }
-      
-  [self.window.rootViewController presentViewController:activityVC animated:YES completion:nil];
+    if ([activityVC respondsToSelector:@selector(popoverPresentationController)])
+    {
+      activityVC.popoverPresentationController.sourceView = self;
+      activityVC.popoverPresentationController.permittedArrowDirections = 0;
+      activityVC.excludedActivityTypes = @[UIActivityTypePostToFacebook, UIActivityTypePostToTwitter, UIActivityTypePostToWeibo, UIActivityTypePrint, UIActivityTypeAssignToContact,UIActivityTypeSaveToCameraRoll, UIActivityTypeSaveToCameraRoll, UIActivityTypeAddToReadingList, UIActivityTypePostToFlickr, UIActivityTypePostToVimeo, UIActivityTypePostToTencentWeibo, UIActivityTypeOpenInIBooks, UIActivityTypeMarkupAsPDF];
 
+    }
+        
+    [self.window.rootViewController presentViewController:activityVC animated:YES completion:nil];
+  });
+  
   return true;
 }
 
