@@ -128,6 +128,68 @@
                                            selector:@selector(AudioInterruption:)
                                                name:AVAudioSessionInterruptionNotification
                                              object:session];
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(currentRouteChanged:)
+                                               name:AVAudioSessionRouteChangeNotification
+                                             object:session];
+}
+
+- (void)currentRouteChanged:(NSNotification *)notification
+{
+  NSDictionary *interuptionDict = notification.userInfo;
+  NSInteger routeChangeReason = [[interuptionDict valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
+  
+  IPlugAUPlayer* auPlayer = (IPlugAUPlayer*)player;
+  
+  switch (routeChangeReason)
+  {
+    case AVAudioSessionRouteChangeReasonUnknown:
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonUnknown");
+      break;
+      
+    case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+      // a headset was added or removed
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonNewDeviceAvailable");
+      
+      if (![auPlayer engineRunning])
+      {
+        [auPlayer startEngine];
+      }
+      
+      break;
+      
+    case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
+      // a headset was added or removed
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonOldDeviceUnavailable");
+      
+      if (![auPlayer engineRunning])
+      {
+        [auPlayer startEngine];
+      }
+      
+      break;
+      
+    case AVAudioSessionRouteChangeReasonCategoryChange:
+      // called at start - also when other audio wants to play
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonCategoryChange");//AVAudioSessionRouteChangeReasonCategoryChange
+      break;
+      
+    case AVAudioSessionRouteChangeReasonOverride:
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonOverride");
+      break;
+      
+    case AVAudioSessionRouteChangeReasonWakeFromSleep:
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonWakeFromSleep");
+      break;
+      
+    case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+      NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory");
+      break;
+      
+    default:
+      break;
+  }
 }
 
 - (void)AudioInterruption:(NSNotification *)notification
@@ -156,24 +218,13 @@
       // • Make session active
       // • Update user interface
       // • AVAudioSessionInterruptionOptionShouldResume option
-      [auPlayer activate];
-      [auPlayer startEngine];
-
-      [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kResumed];
-      
       // Delay start because this notification is fired before call is ended and it's audio engine is stopped. 1s-3s should be fine
       dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1), dispatch_get_main_queue(), ^{
         [auPlayer activate];
         [auPlayer startEngine];
+        
+        [au SetIOSAudioEngineState: iplug::igraphics::IGraphics::EIOSAudioEngineState::kResumed];
       });
-//      if (interruptionOption.unsignedIntegerValue == AVAudioSessionInterruptionOptionShouldResume)
-//      {
-//        // Here you should continue playback.
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3), dispatch_get_main_queue(), ^{
-//          [auPlayer restart];
-//        });
-//      }
-    
       break;
     }
     default:

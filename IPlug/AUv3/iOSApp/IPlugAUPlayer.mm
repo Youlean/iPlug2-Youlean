@@ -181,4 +181,9 @@
 {
   [audioEngine stop];
 }
+
+- (BOOL) engineRunning
+{
+  return [audioEngine isRunning];
+}
 @end

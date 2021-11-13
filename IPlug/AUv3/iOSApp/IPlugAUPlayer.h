@@ -32,5 +32,6 @@
 - (void) deactivate;
 - (void) startEngine;
 - (void) stopEngine;
+- (BOOL) engineRunning;
 
 @end
