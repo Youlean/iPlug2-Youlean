@@ -28,6 +28,8 @@
 
 - (void) initAudioPlayer;
 
+- (void) channelRouteChanged;
+
 - (void) activate;
 - (void) deactivate;
 - (void) startEngine;

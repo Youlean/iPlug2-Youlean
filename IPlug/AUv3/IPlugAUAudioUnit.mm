@@ -151,6 +151,91 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 }
 
+- (void) setAudioIO
+{
+  mBufferedInputBuses.Empty(true);
+  mBufferedOutputBuses.Empty(true);
+  
+  NSMutableArray* pChannelCapabilities = [[NSMutableArray alloc] init];
+  [self populateChannelCapabilitesArray: pChannelCapabilities];
+  mChannelCapabilitiesArray = pChannelCapabilities;
+  
+  int nInputBuses = mPlug->MaxNBuses(ERoute::kInput);
+  int nOutputBuses = mPlug->MaxNBuses(ERoute::kOutput);
+  
+  
+  if(nOutputBuses == 0) // MIDI FX
+  {
+    NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
+    BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
+    int busChans = 2;
+    AVAudioFormat* pOutputBusFormat = nil;
+    AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo];
+    pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
+    
+    if(pOutputBusFormat)
+      pBufferedOutputBus->init(pOutputBusFormat, busChans);
+    
+    [pOutputBusses addObject:pBufferedOutputBus->bus];
+    
+    mBufferedOutputBuses.Add(pBufferedOutputBus);
+    _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
+  }
+  
+  if(nInputBuses)
+  {
+    NSMutableArray* pInputBusses = [[NSMutableArray alloc] init];
+    
+    for(int busIdx = 0; busIdx < nInputBuses; busIdx++)
+    {
+      BufferedInputBus* pBufferedInputBus = new BufferedInputBus();
+      int busChans = mPlug->MaxNChannelsForBus(ERoute::kInput, busIdx);
+      
+      AVAudioFormat* pInputBusFormat = nil;
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
+      pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
+      if(pInputBusFormat)
+        pBufferedInputBus->init(pInputBusFormat, busChans);
+      
+      [pInputBusses addObject:pBufferedInputBus->bus];
+      
+      mBufferedInputBuses.Add(pBufferedInputBus);
+    }
+    
+    _mInputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeInput busses: pInputBusses];
+  }
+
+  if(nOutputBuses)
+  {
+    NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
+    
+    for(int busIdx = 0; busIdx < nOutputBuses; busIdx++)
+    {
+      BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
+      int busChans = mPlug->MaxNChannelsForBus(ERoute::kOutput, busIdx);
+      
+      AVAudioFormat* pOutputBusFormat = nil;
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
+      pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
+      if(pOutputBusFormat)
+      {
+        pBufferedOutputBus->init(pOutputBusFormat, busChans);
+      }
+      
+      [pOutputBusses addObject:pBufferedOutputBus->bus];
+      
+      mBufferedOutputBuses.Add(pBufferedOutputBus);
+    }
+    
+    _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
+  }
+}
+
+- (void) channelRouteChanged
+{
+  [self setAudioIO];
+}
+
 - (void)setAVAudioEngine: (void*)engine
 {
   _avEngine = engine;
@@ -280,79 +365,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
 #pragma mark Audio I/O
   
-  NSMutableArray* pChannelCapabilities = [[NSMutableArray alloc] init];
-  [self populateChannelCapabilitesArray: pChannelCapabilities];
-  mChannelCapabilitiesArray = pChannelCapabilities;
-  
-  int nInputBuses = mPlug->MaxNBuses(ERoute::kInput);
-  int nOutputBuses = mPlug->MaxNBuses(ERoute::kOutput);
-
-  
-  if(nOutputBuses == 0) // MIDI FX
-  {
-    NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
-    BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
-    int busChans = 2;
-    AVAudioFormat* pOutputBusFormat = nil;
-    AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo];
-    pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
-    
-    if(pOutputBusFormat)
-      pBufferedOutputBus->init(pOutputBusFormat, busChans);
-    
-    [pOutputBusses addObject:pBufferedOutputBus->bus];
-    
-    mBufferedOutputBuses.Add(pBufferedOutputBus);
-    _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
-  }
-  
-  if(nInputBuses)
-  {
-    NSMutableArray* pInputBusses = [[NSMutableArray alloc] init];
-    
-    for(int busIdx = 0; busIdx < nInputBuses; busIdx++)
-    {
-      BufferedInputBus* pBufferedInputBus = new BufferedInputBus();
-      int busChans = mPlug->MaxNChannelsForBus(ERoute::kInput, busIdx);
-      
-      AVAudioFormat* pInputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
-      pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
-      if(pInputBusFormat)
-        pBufferedInputBus->init(pInputBusFormat, busChans);
-      
-      [pInputBusses addObject:pBufferedInputBus->bus];
-
-      mBufferedInputBuses.Add(pBufferedInputBus);
-    }
-    
-    _mInputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeInput busses: pInputBusses];
-  }
-  
-  if(nOutputBuses)
-  {
-    NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
-    
-    for(int busIdx = 0; busIdx < nOutputBuses; busIdx++)
-    {
-      BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
-      int busChans = mPlug->MaxNChannelsForBus(ERoute::kOutput, busIdx);
-      
-      AVAudioFormat* pOutputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
-      pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
-      if(pOutputBusFormat)
-      {
-        pBufferedOutputBus->init(pOutputBusFormat, busChans);
-      }
-      
-      [pOutputBusses addObject:pBufferedOutputBus->bus];
-      
-      mBufferedOutputBuses.Add(pBufferedOutputBus);
-    }
-    
-    _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
-  }
+  [self setAudioIO];
   
 #pragma mark MIDI
   

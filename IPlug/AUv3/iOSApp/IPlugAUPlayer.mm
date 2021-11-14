@@ -136,6 +136,49 @@
   [self startEngine];
 }
 
+- (void) channelRouteChanged
+{
+  AVAudioSession* session = [AVAudioSession sharedInstance];
+  AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
+  
+#if PLUG_TYPE != 1
+  AVAudioFormat* micInputFormat = [[audioEngine inputNode] inputFormatForBus:0];
+  AVAudioFormat* pluginInputFormat = [avAudioUnit inputFormatForBus:0];
+#endif
+  
+  AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
+  
+  NSLog(@"Session SR: %i", int(session.sampleRate));
+  NSLog(@"Session IO Buffer: %i", int((session.IOBufferDuration * session.sampleRate)+0.5));
+  
+#if PLUG_TYPE != 1
+  NSLog(@"Mic Input SR: %i", int(micInputFormat.sampleRate));
+  NSLog(@"Mic Input Chans: %i", micInputFormat.channelCount);
+  NSLog(@"Plugin Input SR: %i", int(pluginInputFormat.sampleRate));
+  NSLog(@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
+#endif
+  
+#if PLUG_TYPE != 1
+  if (micInputFormat != nil)
+    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
+#endif
+  
+  auto numOutputBuses = [avAudioUnit numberOfOutputs];
+  
+  if (numOutputBuses > 1)
+  {
+    // Assume all output buses are the same format
+    for (int busIdx=0; busIdx<numOutputBuses; busIdx++)
+    {
+      [audioEngine connect:avAudioUnit to:mainMixer fromBus: busIdx toBus:[mainMixer nextAvailableInputBus] format:pluginOutputFormat];
+    }
+  }
+  else
+  {
+    [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: pluginOutputFormat];
+  }
+}
+
 - (AVAudioEngine *)getAudioEngine
 {
   return audioEngine;

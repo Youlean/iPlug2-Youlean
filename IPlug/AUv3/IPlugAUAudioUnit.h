@@ -38,6 +38,8 @@
 - (void) AUv3AppState:(int) state;
 - (void) SetIsHostApp:(BOOL) isApp;
 - (void) AppOpenedWithURL:(NSURL *) url;
+- (void) setAudioIO;
+- (void) channelRouteChanged;
 
 - (void)setAVAudioEngine: (void*)engine;
 - (void)setAVAudioUnit: (void*)auUnit;

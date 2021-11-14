@@ -107,7 +107,7 @@
 
   [player loadAudioUnitWithComponentDescription:desc completion:^{
     self->iplugViewController.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
-
+    
     AVAudioEngine *engine = [self->player getAudioEngine];
     AVAudioUnit* avAudioUnit = [self->player getAVAudioUnit];
     
@@ -130,17 +130,18 @@
                                              object:session];
   
   [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(currentRouteChanged:)
+                                           selector:@selector(channelRouteChanged:)
                                                name:AVAudioSessionRouteChangeNotification
                                              object:session];
 }
 
-- (void)currentRouteChanged:(NSNotification *)notification
+- (void)channelRouteChanged:(NSNotification *)notification
 {
   NSDictionary *interuptionDict = notification.userInfo;
   NSInteger routeChangeReason = [[interuptionDict valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
   
   IPlugAUPlayer* auPlayer = (IPlugAUPlayer*)player;
+  IPlugAUAudioUnit* plugAudioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
   
   switch (routeChangeReason)
   {
@@ -151,11 +152,15 @@
     case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
       // a headset was added or removed
       NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonNewDeviceAvailable");
+
+      [auPlayer stopEngine];
+      [auPlayer deactivate];
+
+      [plugAudioUnit channelRouteChanged];
+      [auPlayer channelRouteChanged];
       
-      if (![auPlayer engineRunning])
-      {
-        [auPlayer startEngine];
-      }
+      [auPlayer activate];
+      [auPlayer startEngine];
       
       break;
       
@@ -163,10 +168,14 @@
       // a headset was added or removed
       NSLog(@"routeChangeReason : AVAudioSessionRouteChangeReasonOldDeviceUnavailable");
       
-      if (![auPlayer engineRunning])
-      {
-        [auPlayer startEngine];
-      }
+      [auPlayer stopEngine];
+      [auPlayer deactivate];
+      
+      [plugAudioUnit channelRouteChanged];
+      [auPlayer channelRouteChanged];
+      
+      [auPlayer activate];
+      [auPlayer startEngine];
       
       break;
       
