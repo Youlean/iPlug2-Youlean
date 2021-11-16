@@ -68,7 +68,13 @@
 #if PLUG_TYPE == 1
   [session setCategory: AVAudioSessionCategoryPlayback error:&error];
 #else
+  AVAudioSessionPortDescription *routePort = session.currentRoute.outputs.firstObject;
+  NSString *portType = routePort.portType;
+  
+  NSLog(@"PortType %@", portType);
+  
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
+  [session  overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
 #endif
   
   [session setPreferredSampleRate:iplug::DEFAULT_SAMPLE_RATE error:nil];
