@@ -102,7 +102,7 @@ struct AAX_SIPlugSetupInfo
     mPluginID = 'none';
     mLatency = 0;
     mAudiosuiteID = 'none';
-    mMultiMonoSupport = true;
+    mMultiMonoSupport = false;
     mWantsSideChain = false;
     mNumAuxOutputStems = 0;
     
