@@ -34,6 +34,7 @@ TRACER_DEFS = $DEBUG_DEFS TRACER_BUILD // here you can change if a TRACER build 
 ALL_DEFS = NOMINMAX 
 PLUGIN_DEFS = SWELL_CLEANUP_ON_UNLOAD // macros for all plug-in builds
 VST2_DEFS = VST2_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
+FRUITY_DEFS = VST2_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 VST3_DEFS = VST3_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 VST3C_DEFS = VST3C_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=0
 VST3P_DEFS = VST3P_API $PLUGIN_DEFS IPLUG_EDITOR=0 IPLUG_DSP=1 //NO_IGRAPHICS
@@ -84,6 +85,7 @@ EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EX
 
 // Plug-in SDK paths
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
+FRUITY_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
 VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
 AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
 REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
@@ -153,6 +155,7 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 // The AAX folder should be the location of the PT Dev build plug-ins folder, installer scripts will copy to the non-developer build
 
 VST2_PATH = $(HOME)/Library/Audio/Plug-Ins/VST
+FRUITY_PATH = $(HOME)/Library/Audio/Plug-Ins/FRUITY
 VST3_PATH = $(HOME)/Library/Audio/Plug-Ins/VST3
 AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins

@@ -22,7 +22,7 @@
 
 #if defined OS_WIN && !defined VST3C_API
   HINSTANCE gHINSTANCE = 0;
-  #if defined(VST2_API) || defined(AAX_API)
+  #if defined(VST2_API) || defined(AAX_API) || defined(FRUITY_API)
   #ifdef __MINGW32__
   extern "C"
   #endif
@@ -87,6 +87,32 @@
     #endif
     }
   };
+  
+#pragma mark - FRUITY
+#elif defined FRUITY_API
+extern "C" EXPORT TFruityPlug * STDMETHODCALLTYPE CreatePlugInstance(TFruityPlugHost *Host, int Tag)
+{
+  InstanceInfo instanceInfo;
+  instanceInfo.Host = Host;
+  instanceInfo.Tag = Tag;
+  
+#ifdef _WIN32
+  instanceInfo.Hinstance = gHINSTANCE;
+  instanceInfo.bundleID = NULL;
+#elif __APPLE__
+  instanceInfo.Hinstance = NULL;
+  instanceInfo.bundleID = BUNDLE_ID;
+#endif
+  
+  IPlugFruity* pPlug = new PLUG_CLASS_NAME(instanceInfo);
+  if (pPlug)
+  {
+	return (TFruityPlug *)pPlug;
+  }
+  
+  return NULL;
+};
+
 #pragma mark - VST3 (All)
 #elif defined VST3_API || VST3C_API || defined VST3P_API
   #include "public.sdk/source/main/pluginfactory.h"
@@ -273,16 +299,16 @@
 BEGIN_IPLUG_NAMESPACE
 
 #pragma mark -
-#pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB
+#pragma mark VST2, FRUITY, VST3, AAX, AUv3, APP, WAM, WEB
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
+#if defined VST2_API || defined FRUITY_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
 
 Plugin* MakePlug(const InstanceInfo& info)
 {
   // From VST3 - is this necessary?
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  
+
   return new PLUG_CLASS_NAME(info);
 }
 

@@ -86,6 +86,11 @@
   #include "IPlugVST3_Processor.h"
   #define PLUGIN_API_BASE IPlugVST3Processor
   #define API_EXT "vst3"
+#elif FRUITY_API
+  #define IPLUG_FRUITY
+  #include "IPlugFruity.h"
+  #define PLUGIN_API_BASE IPlugFruity
+  #define API_EXT "fruity"
 #else
   #error "No API defined!"
 #endif
