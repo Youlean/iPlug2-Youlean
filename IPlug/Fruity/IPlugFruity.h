@@ -59,6 +59,45 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(const ISysEx& msg) override;
 
+  void PianoRollClear()
+  {
+    mNoteParams.resize(0);
+  }
+  void PianoRollAdd(int positionPPQ, int lenghtPPQ, short note = 60, float vol = 0.78125, int pan = 0, short color = 0, int pitch = 0)
+  {
+    mNoteParams.resize(mNoteParams.size() + 1);
+
+    mNoteParams.back().Position = positionPPQ;
+    mNoteParams.back().Length = lenghtPPQ;
+    mNoteParams.back().Pan = pan;
+    mNoteParams.back().Vol = vol;
+    mNoteParams.back().Note = note;
+    mNoteParams.back().Color = color;
+    mNoteParams.back().Pitch = pitch;
+    mNoteParams.back().FCut = 0;
+    mNoteParams.back().FRes = 0;
+  }
+  void PianoRollPush(int PatNum = -1, int ChanNum = -1)
+  {
+    PNotesParams pNoteParams = (PNotesParams)malloc(sizeof(TNotesParams) + (mNoteParams.size() - 1) * sizeof(TNoteParams));
+
+    pNoteParams->PatNum = PatNum;
+    pNoteParams->ChanNum = ChanNum;
+    pNoteParams->Target = 1;
+    pNoteParams->Flags = NPF_EmptyFirst;
+    pNoteParams->Count = mNoteParams.size();
+
+    for (size_t i = 0; i < mNoteParams.size(); i++)
+    {
+      pNoteParams->NoteParams[i] = mNoteParams[i];
+    }
+
+    PlugHost->Dispatcher(HostTag, FHD_AddNotesToPR, 0, (intptr_t)pNoteParams);
+
+    free(pNoteParams);
+    mNoteParams.resize(0);
+  }
+
 private:
   // Fruity stuff
   virtual void STDMETHODCALLTYPE DestroyObject();
@@ -82,11 +121,12 @@ private:
   virtual int STDMETHODCALLTYPE Voice_ProcessEvent(TVoiceHandle Handle, int EventID, int EventValue, int Flags);
   virtual int STDMETHODCALLTYPE Voice_Render(TVoiceHandle Handle, PWAV32FS DestBuffer, int& Length);
 
-
   intptr_t STDMETHODCALLTYPE Dispatcher(intptr_t ID, intptr_t Index, intptr_t Value);
 
   IByteChunk mState;     // Persistent storage if the host asks for plugin state.
   IByteChunk mBankState; // Persistent storage if the host asks for bank state.
+  std::vector<TNoteParams> mNoteParams;
+
 protected:
   TFruityPlugInfo mPlugInfo;
   InstanceInfo mInstanceInfo;

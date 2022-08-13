@@ -372,9 +372,9 @@ typedef struct {
                
     // levels
     int Pan;       // default=0
-    int Vol;       // default=100/128
+    float Vol;       // default=100/128
     short Note;    // default=60
-	short Color;   // 0..15 (=MIDI channel)
+	  short Color;   // 0..15 (=MIDI channel)
     int Pitch;     // default=0
     float FCut;    // default=0
     float FRes;    // default=0

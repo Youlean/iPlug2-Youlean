@@ -33,7 +33,7 @@ IPlugFruity::IPlugFruity(const InstanceInfo& info, const Config& config)
   PlugInfo.SDKVersion = CurrentSDKVersion;
   PlugInfo.LongName = (char*)config.pluginName;
   PlugInfo.ShortName = (char*)config.pluginName;
-  PlugInfo.Flags = FPF_Type_Effect;
+  PlugInfo.Flags = FPF_Type_Effect | FPF_Type_Visual;
   
 #ifdef __APPLE__
   PlugInfo.Flags |= FPF_MacNeedsNSView;
@@ -83,9 +83,15 @@ bool IPlugFruity::EditorResize(int viewWidth, int viewHeight)
     {
       SetEditorSize(viewWidth, viewHeight);
     }
+
+    RECT r;
+    GetWindowRect(EditorHandle, &r);
+    SetWindowPos(EditorHandle, 0, r.left, r.bottom - viewHeight, viewWidth, viewHeight, 0);
+
+    PlugHost->Dispatcher(HostTag, FHD_EditorResized, 0, 0);    
   }
 
-  return true;
+  return false;
 }
 
 void IPlugFruity::SetLatency(int samples)

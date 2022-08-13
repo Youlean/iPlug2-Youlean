@@ -2227,6 +2227,14 @@ IBitmap IGraphics::LoadBitmap(const char *name, const void *pData, int dataSize,
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
+IBitmap IGraphics::LoadBitmapNonStatic(const char* name, const void* pData, int width, int height)
+{
+  int dataSize = width | (height << 16);
+  APIBitmap* pAPIBitmap = LoadAPIBitmap(name, pData, dataSize, 1);
+
+  return IBitmap(pAPIBitmap, 1, false, name);
+}
+
 void IGraphics::ReleaseBitmap(const IBitmap &bitmap)
 {
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);

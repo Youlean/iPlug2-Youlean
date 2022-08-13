@@ -276,6 +276,19 @@ bool IGraphicsCairo::BitmapExtSupported(const char* ext)
   return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
 }
 
+APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  int width = dataSize & 0xFFFF;
+  int height = (dataSize >> 16) & 0xFFFF;
+
+  cairo_surface_t* pSurface = cairo_image_surface_create_for_data((unsigned char*)pData, cairo_format_t::CAIRO_FORMAT_ARGB32, width, height, cairo_format_stride_for_width(cairo_format_t::CAIRO_FORMAT_ARGB32, width));
+  //cairo_surface_set_device_scale(pSurface, scale, scale);
+
+  assert(!pSurface || cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
+
+  return new Bitmap(pSurface, scale, 1.f);
+}
+
 cairo_surface_t* IGraphicsCairo::CreateCairoDataSurface(const APIBitmap* pBitmap, RawBitmapData& data, bool resize)
 {
   cairo_surface_t* pSurface = nullptr;
@@ -353,6 +366,7 @@ void IGraphicsCairo::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int sr
   cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
   cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
+  cairo_pattern_set_filter(cairo_get_source(mContext), CAIRO_FILTER_NEAREST);
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
 }

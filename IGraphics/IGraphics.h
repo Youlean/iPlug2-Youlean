@@ -1622,6 +1622,7 @@ public:
    * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
   virtual IBitmap LoadBitmap(const char *name, const void* pData, int dataSize, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
+  IBitmap LoadBitmapNonStatic(const char *name, const void* pData, int rowBytes, int height);
 
   /** Load an SVG from disk or from windows resource
    * @param fileNameOrResID A CString absolute path or resource ID
