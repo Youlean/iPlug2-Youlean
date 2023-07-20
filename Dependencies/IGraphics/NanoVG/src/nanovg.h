@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 typedef struct NVGcontext NVGcontext;
+typedef struct NVGstate NVGstate;
 
 struct NVGcolor {
 	union {
@@ -50,6 +51,13 @@ struct NVGpaint {
 	NVGcolor innerColor;
 	NVGcolor outerColor;
 	int image;
+	int gradient;
+	int multStopEnabled;
+	int stopsCount; // number of stops (up to 16)
+	int cycleMethod; // (0 - clamp | 1 - reflect | 2 - repeate)
+	int interpolation; // (0 - linear | 1 - circleIn | 2 - circleOut | 3 - fade (for better shadows))
+	float stops[16];
+	NVGcolor colors[16];
 };
 typedef struct NVGpaint NVGpaint;
 
@@ -136,7 +144,7 @@ struct NVGtextRow {
 typedef struct NVGtextRow NVGtextRow;
 
 enum NVGimageFlags {
-    NVG_IMAGE_GENERATE_MIPMAPS	= 1<<0,     // Generate mipmaps during creation of the image.
+  NVG_IMAGE_GENERATE_MIPMAPS	= 1<<0,     // Generate mipmaps during creation of the image.
 	NVG_IMAGE_REPEATX			= 1<<1,		// Repeat image in X direction.
 	NVG_IMAGE_REPEATY			= 1<<2,		// Repeat image in Y direction.
 	NVG_IMAGE_FLIPY				= 1<<3,		// Flips (inverses) image in Y direction when rendered.
@@ -153,6 +161,8 @@ enum NVGimageFlags {
 // frame buffer size. In that case you would set windowWidth/Height to the window size
 // devicePixelRatio to: frameBufferWidth / windowWidth.
 void nvgBeginFrame(NVGcontext* ctx, float windowWidth, float windowHeight, float devicePixelRatio);
+
+void nvgBeginFramePreserveState(NVGcontext* ctx, float windowWidth, float windowHeight, float devicePixelRatio);
 
 // Cancels drawing the current frame.
 void nvgCancelFrame(NVGcontext* ctx);
@@ -241,6 +251,8 @@ void nvgReset(NVGcontext* ctx);
 // Sets whether to draw antialias for nvgStroke() and nvgFill(). It's enabled by default.
 void nvgShapeAntiAlias(NVGcontext* ctx, int enabled);
 
+int nvgGetShapeAntiAlias(NVGcontext* ctx);
+
 // Sets current stroke style to a solid color.
 void nvgStrokeColor(NVGcontext* ctx, NVGcolor color);
 
@@ -257,16 +269,24 @@ void nvgFillPaint(NVGcontext* ctx, NVGpaint paint);
 // Miter limit controls when a sharp corner is beveled.
 void nvgMiterLimit(NVGcontext* ctx, float limit);
 
+float nvgGetMiterLimit(NVGcontext* ctx);
+
 // Sets the stroke width of the stroke style.
 void nvgStrokeWidth(NVGcontext* ctx, float size);
+
+float nvgGetStrokeWidth(NVGcontext* ctx);
 
 // Sets how the end of the line (cap) is drawn,
 // Can be one of: NVG_BUTT (default), NVG_ROUND, NVG_SQUARE.
 void nvgLineCap(NVGcontext* ctx, int cap);
 
+int nvgGetLineCap(NVGcontext* ctx);
+
 // Sets how sharp path corners are drawn.
 // Can be one of NVG_MITER (default), NVG_ROUND, NVG_BEVEL.
 void nvgLineJoin(NVGcontext* ctx, int join);
+
+int nvgGetLineJoin(NVGcontext* ctx);
 
 // Sets the transparency applied to all rendered shapes.
 // Already transparent paths will get proportionally more transparent as well.
@@ -378,6 +398,7 @@ int nvgCreateImageMem(NVGcontext* ctx, int imageFlags, unsigned char* data, int 
 // Creates image from specified image data.
 // Returns handle to the image.
 int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data);
+int nvgCreateImageBGRA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data);
 
 // Updates image data specified by image handle.
 void nvgUpdateImage(NVGcontext* ctx, int image, const unsigned char* data);
@@ -414,7 +435,7 @@ NVGpaint nvgBoxGradient(NVGcontext* ctx, float x, float y, float w, float h,
 NVGpaint nvgRadialGradient(NVGcontext* ctx, float cx, float cy, float inr, float outr,
 						   NVGcolor icol, NVGcolor ocol);
 
-// Creates and returns an image pattern. Parameters (ox,oy) specify the left-top location of the image pattern,
+// Creates and returns an image patter. Parameters (ox,oy) specify the left-top location of the image pattern,
 // (ex,ey) the size of one image, angle rotation around the top-left corner, image is handle to the image to render.
 // The gradient is transformed by the current transform when it is passed to nvgFillPaint() or nvgStrokePaint().
 NVGpaint nvgImagePattern(NVGcontext* ctx, float ox, float oy, float ex, float ey,
@@ -546,15 +567,9 @@ void nvgStroke(NVGcontext* ctx);
 // Returns handle to the font.
 int nvgCreateFont(NVGcontext* ctx, const char* name, const char* filename);
 
-// fontIndex specifies which font face to load from a .ttf/.ttc file.
-int nvgCreateFontAtIndex(NVGcontext* ctx, const char* name, const char* filename, const int fontIndex);
-
 // Creates font by loading it from the specified memory chunk.
 // Returns handle to the font.
 int nvgCreateFontMem(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData);
-
-// fontIndex specifies which font face to load from a .ttf/.ttc file.
-int nvgCreateFontMemAtIndex(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData, const int fontIndex);
 
 // Finds a loaded font of specified name, and returns handle to it, or -1 if the font is not found.
 int nvgFindFont(NVGcontext* ctx, const char* name);
@@ -564,12 +579,6 @@ int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont);
 
 // Adds a fallback font by name.
 int nvgAddFallbackFont(NVGcontext* ctx, const char* baseFont, const char* fallbackFont);
-
-// Resets fallback fonts by handle.
-void nvgResetFallbackFontsId(NVGcontext* ctx, int baseFont);
-
-// Resets fallback fonts by name.
-void nvgResetFallbackFonts(NVGcontext* ctx, const char* baseFont);
 
 // Sets the font size of current text style.
 void nvgFontSize(NVGcontext* ctx, float size);
@@ -630,6 +639,7 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 enum NVGtexture {
 	NVG_TEXTURE_ALPHA = 0x01,
 	NVG_TEXTURE_RGBA = 0x02,
+  NVG_TEXTURE_BGRA = 0x03,
 };
 
 struct NVGscissor {

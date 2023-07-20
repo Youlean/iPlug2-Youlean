@@ -124,7 +124,8 @@ enum GLNVGshaderType {
 	NSVG_SHADER_FILLGRAD,
 	NSVG_SHADER_FILLIMG,
 	NSVG_SHADER_SIMPLE,
-	NSVG_SHADER_IMG
+	NSVG_SHADER_IMG,
+	NSVG_SHADER_FILL_FAST
 };
 
 #if NANOVG_GL_USE_UNIFORMBUFFER
@@ -202,6 +203,12 @@ struct GLNVGfragUniforms {
 		float strokeThr;
 		int texType;
 		int type;
+		int multStopEnabled;
+		int stopsCount;
+		int cycleMethod;
+		int interpolation;
+		float stops[16];
+		float colors[64];
 	#else
 		// note: after modifying layout or size of uniform array,
 		// don't forget to also update the fragment shader source!
@@ -221,6 +228,12 @@ struct GLNVGfragUniforms {
 				float strokeThr;
 				float texType;
 				float type;
+				int multStopEnabled;
+				int stopsCount;
+				int cycleMethod;
+				int interpolation;
+				float stops[16];
+				float colors[64];
 			};
 			float uniformArray[NANOVG_GL_UNIFORMARRAY_SIZE][4];
 		};
@@ -553,129 +566,241 @@ static int glnvg__renderCreate(void* uptr)
 		"}\n";
 
 	static const char* fillFragShader =
-		"#ifdef GL_ES\n"
-		"#if defined(GL_FRAGMENT_PRECISION_HIGH) || defined(NANOVG_GL3)\n"
-		" precision highp float;\n"
-		"#else\n"
-		" precision mediump float;\n"
-		"#endif\n"
-		"#endif\n"
-		"#ifdef NANOVG_GL3\n"
-		"#ifdef USE_UNIFORMBUFFER\n"
-		"	layout(std140) uniform frag {\n"
-		"		mat3 scissorMat;\n"
-		"		mat3 paintMat;\n"
-		"		vec4 innerCol;\n"
-		"		vec4 outerCol;\n"
-		"		vec2 scissorExt;\n"
-		"		vec2 scissorScale;\n"
-		"		vec2 extent;\n"
-		"		float radius;\n"
-		"		float feather;\n"
-		"		float strokeMult;\n"
-		"		float strokeThr;\n"
-		"		int texType;\n"
-		"		int type;\n"
-		"	};\n"
-		"#else\n" // NANOVG_GL3 && !USE_UNIFORMBUFFER
-		"	uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
-		"#endif\n"
-		"	uniform sampler2D tex;\n"
-		"	in vec2 ftcoord;\n"
-		"	in vec2 fpos;\n"
-		"	out vec4 outColor;\n"
-		"#else\n" // !NANOVG_GL3
-		"	uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
-		"	uniform sampler2D tex;\n"
-		"	varying vec2 ftcoord;\n"
-		"	varying vec2 fpos;\n"
-		"#endif\n"
-		"#ifndef USE_UNIFORMBUFFER\n"
-		"	#define scissorMat mat3(frag[0].xyz, frag[1].xyz, frag[2].xyz)\n"
-		"	#define paintMat mat3(frag[3].xyz, frag[4].xyz, frag[5].xyz)\n"
-		"	#define innerCol frag[6]\n"
-		"	#define outerCol frag[7]\n"
-		"	#define scissorExt frag[8].xy\n"
-		"	#define scissorScale frag[8].zw\n"
-		"	#define extent frag[9].xy\n"
-		"	#define radius frag[9].z\n"
-		"	#define feather frag[9].w\n"
-		"	#define strokeMult frag[10].x\n"
-		"	#define strokeThr frag[10].y\n"
-		"	#define texType int(frag[10].z)\n"
-		"	#define type int(frag[10].w)\n"
-		"#endif\n"
+		"    #ifdef GL_ES\n"
+		"    #if defined(GL_FRAGMENT_PRECISION_HIGH) || defined(NANOVG_GL3)\n"
+		"     precision highp float;\n"
+		"    #else\n"
+		"     precision mediump float;\n"
+		"    #endif\n"
+		"    #endif\n"
+		"    #ifdef NANOVG_GL3\n"
+		"    #ifdef USE_UNIFORMBUFFER\n"
+		"    layout(std140) uniform frag {\n"
+		"    mat3 scissorMat;\n"
+		"    mat3 paintMat;\n"
+		"    vec4 innerCol;\n"
+		"    vec4 outerCol;\n"
+		"    vec2 scissorExt;\n"
+		"    vec2 scissorScale;\n"
+		"    vec2 extent;\n"
+		"    float radius;\n"
+		"    float feather;\n"
+		"    float strokeMult;\n"
+		"    float strokeThr;\n"
+		"    int texType;\n"
+		"    int type;\n"
+		"    int multStopEnabled;\n"
+		"    int stopsCount;\n"
+		"    int cycleMethod;\n"
+		"    int interpolation;\n"
+		"    vec4 stops[4];\n"
+		"    vec4 colors[16];\n"
+		"    };\n"
+		"    #else\n"
+		"    uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
+		"    #endif\n"
+		"    uniform sampler2D tex;\n"
+		"    in vec2 ftcoord;\n"
+		"    in vec2 fpos;\n"
+		"    out vec4 outColor;\n"
+		"    #else\n"
+		"    uniform vec4 frag[UNIFORMARRAY_SIZE];\n"
+		"    uniform sampler2D tex;\n"
+		"    varying vec2 ftcoord;\n"
+		"    varying vec2 fpos;\n"
+		"    #endif\n"
+		"    #ifndef USE_UNIFORMBUFFER\n"
+		"    #define scissorMat mat3(frag[0].xyz, frag[1].xyz, frag[2].xyz)\n"
+		"    #define paintMat mat3(frag[3].xyz, frag[4].xyz, frag[5].xyz)\n"
+		"    #define innerCol frag[6]\n"
+		"    #define outerCol frag[7]\n"
+		"    #define scissorExt frag[8].xy\n"
+		"    #define scissorScale frag[8].zw\n"
+		"    #define extent frag[9].xy\n"
+		"    #define radius frag[9].z\n"
+		"    #define feather frag[9].w\n"
+		"    #define strokeMult frag[10].x\n"
+		"    #define strokeThr frag[10].y\n"
+		"    #define texType int(frag[10].z)\n"
+		"    #define type int(frag[10].w)\n"
+		"    #define multStopEnabled int(frag[11].x)\n"
+		"    #define stopsCount int(frag[11].y)\n"
+		"    #define cycleMethod int(frag[11].z)\n"
+		"    #define interpolation int(frag[11].w)\n"
+		"    #define stops vec4[](frag[12], frag[13], frag[14], frag[15])\n"
+		"    #define colors vec4[](frag[16], frag[17], frag[18], frag[19], frag[20], frag[21], frag[22], frag[23], frag[24], frag[25], frag[26], frag[27], frag[29], frag[30], frag[31])\n"
+		"    #endif\n"
 		"\n"
-		"float sdroundrect(vec2 pt, vec2 ext, float rad) {\n"
-		"	vec2 ext2 = ext - vec2(rad,rad);\n"
-		"	vec2 d = abs(pt) - ext2;\n"
-		"	return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rad;\n"
-		"}\n"
+		"    vec4 decodeColor(int index) \n"
+		"    {\n"
+		"        int colorIndex = index >= stopsCount ? stopsCount - 1 : index;\n"
+		"        return colors[colorIndex];\n"
+		"    }\n"
+		"    float decodeStop(int index) \n"
+		"    {\n"
+		"        int stepIndex = index / 4;\n"
+		"        int stepIndexPos = index % 4;\n"
+		"        return stops[stepIndex][stepIndexPos];\n"
+		"    }\n"
+		"    vec4 decodeMix(vec4 a, vec4 b, float t) \n"
+		"    {\n"
+		"        t = clamp(t, 0.0, 1.0);\n"
+		"        if (interpolation == 1) t = sqrt(1 - (1 - t) * (1 - t)); \n"
+		"        else if (interpolation == 2) t = 1 - sqrt(1 - t * t); \n"
+		"        else if (interpolation == 3) t = t * t * t * (t * (t * 6 - 15) + 10); \n"
+		"        return mix(a, b, t);\n"
+		"    }\n"
 		"\n"
-		"// Scissoring\n"
-		"float scissorMask(vec2 p) {\n"
-		"	vec2 sc = (abs((scissorMat * vec3(p,1.0)).xy) - scissorExt);\n"
-		"	sc = vec2(0.5,0.5) - sc * scissorScale;\n"
-		"	return clamp(sc.x,0.0,1.0) * clamp(sc.y,0.0,1.0);\n"
-		"}\n"
-		"#ifdef EDGE_AA\n"
-		"// Stroke - from [0..1] to clipped pyramid, where the slope is 1px.\n"
-		"float strokeMask() {\n"
-		"	return min(1.0, (1.0-abs(ftcoord.x*2.0-1.0))*strokeMult) * min(1.0, ftcoord.y);\n"
-		"}\n"
-		"#endif\n"
+		"    float sdroundrect(vec2 pt, vec2 ext, float rad) \n"
+		"    {\n"
+		"        vec2 ext2 = ext - vec2(rad,rad);\n"
+		"        vec2 d = abs(pt) - ext2;\n"
+		"        return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rad;\n"
+		"    }\n"
 		"\n"
-		"void main(void) {\n"
-		"   vec4 result;\n"
-		"	float scissor = scissorMask(fpos);\n"
-		"#ifdef EDGE_AA\n"
-		"	float strokeAlpha = strokeMask();\n"
-		"	if (strokeAlpha < strokeThr) discard;\n"
-		"#else\n"
-		"	float strokeAlpha = 1.0;\n"
-		"#endif\n"
-		"	if (type == 0) {			// Gradient\n"
-		"		// Calculate gradient color using box gradient\n"
-		"		vec2 pt = (paintMat * vec3(fpos,1.0)).xy;\n"
-		"		float d = clamp((sdroundrect(pt, extent, radius) + feather*0.5) / feather, 0.0, 1.0);\n"
-		"		vec4 color = mix(innerCol,outerCol,d);\n"
-		"		// Combine alpha\n"
-		"		color *= strokeAlpha * scissor;\n"
-		"		result = color;\n"
-		"	} else if (type == 1) {		// Image\n"
-		"		// Calculate color fron texture\n"
-		"		vec2 pt = (paintMat * vec3(fpos,1.0)).xy / extent;\n"
-		"#ifdef NANOVG_GL3\n"
-		"		vec4 color = texture(tex, pt);\n"
-		"#else\n"
-		"		vec4 color = texture2D(tex, pt);\n"
-		"#endif\n"
-		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);"
-		"		if (texType == 2) color = vec4(color.x);"
-		"		// Apply color tint and alpha.\n"
-		"		color *= innerCol;\n"
-		"		// Combine alpha\n"
-		"		color *= strokeAlpha * scissor;\n"
-		"		result = color;\n"
-		"	} else if (type == 2) {		// Stencil fill\n"
-		"		result = vec4(1,1,1,1);\n"
-		"	} else if (type == 3) {		// Textured tris\n"
-		"#ifdef NANOVG_GL3\n"
-		"		vec4 color = texture(tex, ftcoord);\n"
-		"#else\n"
-		"		vec4 color = texture2D(tex, ftcoord);\n"
-		"#endif\n"
-		"		if (texType == 1) color = vec4(color.xyz*color.w,color.w);"
-		"		if (texType == 2) color = vec4(color.x);"
-		"		color *= scissor;\n"
-		"		result = color * innerCol;\n"
-		"	}\n"
-		"#ifdef NANOVG_GL3\n"
-		"	outColor = result;\n"
-		"#else\n"
-		"	gl_FragColor = result;\n"
-		"#endif\n"
-		"}\n";
+		"    // Scissoring\n"
+		"    float scissorMask(vec2 p) \n"
+		"    {\n"
+		"        vec2 sc = (abs((scissorMat * vec3(p,1.0)).xy) - scissorExt) * scissorScale;\n"
+		"        sc = vec2(0.5,0.5) - sc;\n"
+		"        return clamp(sc.x,0.0,1.0) * clamp(sc.y,0.0,1.0);\n"
+		"    }\n"
+		"    #ifdef EDGE_AA\n"
+		"    // Stroke - from [0..1] to clipped pyramid, where the slope is 1px.\n"
+		"    float strokeMask() \n"
+		"    {\n"
+		"        return min(1.0, (1.0-abs(ftcoord.x*2.0-1.0))*strokeMult) * min(1.0, ftcoord.y);\n"
+		"    }\n"
+		"    #endif\n"
+		"\n"
+		"    void main(void) \n"
+		"    {\n"
+		"        vec4 result;\n"
+		"        float scissor = scissorMask(fpos); //floor(0.75 + scissorMask(fpos));\n"
+		"        #ifdef EDGE_AA\n"
+		"        float strokeAlpha = strokeMask();\n"
+		"        if (strokeAlpha < strokeThr) discard;\n"
+		"        #else\n"
+		"        float strokeAlpha = 1.0;\n"
+		"        #endif\n"
+		"\n"
+		"        if (scissor < 0.5f)\n"
+		"        {\n"
+		"            result = vec4(0);\n"
+		"        }\n"
+		"        else if (type == 0) // Gradient\n"
+		"        {\n"
+		"            // Calculate gradient color using box gradient\n"
+		"            vec2 pt = (paintMat * vec3(fpos,1.0)).xy;\n"
+		"            float d = clamp((sdroundrect(pt, extent, radius) + feather*0.5) / feather, 0.0, 1.0);\n"
+		"            vec4 color;\n"
+		"\n"
+		"            // Multstop gradient\n"
+		"            if (multStopEnabled == 1) \n"
+		"            {\n"
+		"                if (cycleMethod == 1) // reflect\n"
+		"                    d = d - floor(d);\n"
+		"                else if (cycleMethod == 2) // repeat\n"
+		"                    d = (int(floor(d)) % 2 == 0) ? d - floor(d) : 1 - (d - floor(d));\n"
+		"\n"
+		"                float prevStop = 0;\n"
+		"                float stop = 0;\n"
+		"                int stopIdx = 0;\n"
+		"\n"
+		"                for (; stopIdx < stopsCount; stopIdx++)\n"
+		"                {\n"
+		"                    prevStop = stop;\n"
+		"                    stop = decodeStop(stopIdx);\n"
+		"                    if (d <= stop)\n"
+		"                        break;\n"
+		"                }\n"
+		"                \n"
+		"                if (stopIdx == 0)\n"
+		"                {\n"
+		"                    color = decodeColor(0);\n"
+		"                }\n"
+		"                else if (stopIdx == stopsCount)\n"
+		"                {\n"
+		"                    color = decodeColor(stopsCount - 1);\n"
+		"                }\n"
+		"                else\n"
+		"                {\n"
+		"                    float colorPos = 0;\n"
+		"\n"
+		"                    if (stop - prevStop > 0)\n"
+		"                    {\n"
+		"                        colorPos = clamp((d - prevStop) / (stop - prevStop), 0.0, 1.0);\n"
+		"                    }\n"
+		"                    \n"
+		"                    color = decodeMix(decodeColor(stopIdx - 1), decodeColor(stopIdx), colorPos);\n"
+		"                }\n"
+		"            }\n"
+		"            else \n"
+		"            {\n"
+		"                color = mix(innerCol, outerCol, d);\n"
+		"            }\n"
+		"\n"
+		"            // Combine alpha\n"
+		"            color *= strokeAlpha * scissor;\n"
+		"            result = color;\n"
+		"        }\n"
+		"        else if (type == 1) // Image\n"
+		"        {\n"
+		"            // Calculate color fron texture\n"
+		"            vec2 pt = (paintMat * vec3(fpos,1.0)).xy / extent;\n"
+		"            #ifdef NANOVG_GL3\n"
+		"            vec4 color = texture(tex, pt);\n"
+		"            #else\n"
+		"            vec4 color = texture2D(tex, pt);\n"
+		"            #endif\n"
+		"            if (texType == 1)\n"
+		"                  color = vec4(color.xyz*color.w,color.w);\n"
+		"\n"
+		"                if (texType == 2)\n"
+		"                  color = vec4(color.x); // Apply color tint and alpha.\n"
+		"\n"
+		"            color *= innerCol;\n"
+		"\n"
+		"            // Combine alpha\n"
+		"            color *= strokeAlpha * scissor;\n"
+		"            result = color;\n"
+		"        }\n"
+		"        else if (type == 2) // Stencil fill\n"
+		"        {\n"
+		"            result = vec4(1,1,1,1);\n"
+		"        }\n"
+		"        else if (type == 3) // Textured tris\n"
+		"        {\n"
+		"            #ifdef NANOVG_GL3\n"
+		"            vec4 color = texture(tex, ftcoord);\n"
+		"            #else\n"
+		"            vec4 color = texture2D(tex, ftcoord);\n"
+		"            #endif\n"
+		"            if(color.x < 0.02) discard;\n"
+		"            if (texType == 1)\n"
+		"                  color = vec4(color.xyz*color.w,color.w);\n"
+		"\n"
+		"                if (texType == 2)\n"
+		"                  color = vec4(color.x);\n"
+		"\n"
+		"                color *= scissor;\n"
+		"            result = color * innerCol;\n"
+		"        }\n"
+		"        else if (type == 4) // Fill\n"
+		"        {\n"
+		"            vec4 color = innerCol;\n"
+		"\n"
+		"            // Combine alpha\n"
+		"            color *= strokeAlpha * scissor;\n"
+		"            result = color;\n"
+		"        }\n"
+		"        #ifdef NANOVG_GL3\n"
+		"        outColor = result;\n"
+		"        #else\n"
+		"        gl_FragColor = result;\n"
+		"        #endif\n"
+		"    }\n"
+		"";
 
 	glnvg__checkError(gl, "init");
 
@@ -928,12 +1053,23 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		glnvg__xformToMat3x4(frag->scissorMat, invxform);
 		frag->scissorExt[0] = scissor->extent[0];
 		frag->scissorExt[1] = scissor->extent[1];
-		frag->scissorScale[0] = sqrtf(scissor->xform[0]*scissor->xform[0] + scissor->xform[2]*scissor->xform[2]) / fringe;
-		frag->scissorScale[1] = sqrtf(scissor->xform[1]*scissor->xform[1] + scissor->xform[3]*scissor->xform[3]) / fringe;
+
+		if (fringe != 0.0f){
+			frag->scissorScale[0] = sqrtf(scissor->xform[0] * scissor->xform[0] + scissor->xform[2] * scissor->xform[2]) / fringe;
+			frag->scissorScale[1] = sqrtf(scissor->xform[1] * scissor->xform[1] + scissor->xform[3] * scissor->xform[3]) / fringe;
+		} else {
+			frag->scissorScale[0] = sqrtf(scissor->xform[0] * scissor->xform[0] + scissor->xform[2] * scissor->xform[2]);
+			frag->scissorScale[1] = sqrtf(scissor->xform[1] * scissor->xform[1] + scissor->xform[3] * scissor->xform[3]);
+		}
 	}
 
 	memcpy(frag->extent, paint->extent, sizeof(frag->extent));
-	frag->strokeMult = (width*0.5f + fringe*0.5f) / fringe;
+
+	if (fringe != 0.0f)
+		frag->strokeMult = (width * 0.5f + fringe * 0.5f) / fringe;
+	else
+		frag->strokeMult = 1.0;
+
 	frag->strokeThr = strokeThr;
 
 	if (paint->image != 0) {
@@ -965,8 +1101,37 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 			frag->texType = 2.0f;
 		#endif
 //		printf("frag->texType = %d\n", frag->texType);
-	} else {
+	} 
+	else if (paint->gradient)
+	{
 		frag->type = NSVG_SHADER_FILLGRAD;
+		frag->radius = paint->radius;
+		frag->feather = paint->feather;
+		nvgTransformInverse(invxform, paint->xform);
+
+		if (paint->multStopEnabled)
+		{
+			frag->multStopEnabled = paint->multStopEnabled;
+			frag->stopsCount = paint->stopsCount;
+			frag->cycleMethod = paint->cycleMethod;
+			frag->interpolation = paint->interpolation;
+
+			for (int i = 0; i < frag->stopsCount; i++)
+			{
+				frag->stops[i] = paint->stops[i];
+
+				const NVGcolor color = glnvg__premulColor(paint->colors[i]);
+
+				frag->colors[i * 4 + 0] = color.r;
+				frag->colors[i * 4 + 1] = color.g;
+				frag->colors[i * 4 + 2] = color.b;
+				frag->colors[i * 4 + 3] = color.a;
+			}
+		}
+	}
+	else
+	{
+		frag->type = NSVG_SHADER_FILL_FAST;
 		frag->radius = paint->radius;
 		frag->feather = paint->feather;
 		nvgTransformInverse(invxform, paint->xform);

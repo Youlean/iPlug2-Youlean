@@ -9,7 +9,9 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    auto g = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    g->Resize(100, 100, 1);
+    return g;
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {

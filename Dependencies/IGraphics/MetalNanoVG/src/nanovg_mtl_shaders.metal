@@ -51,11 +51,37 @@ typedef struct  {
   float strokeThr;
   int texType;
   int type;
+  int multStopEnabled;
+  int stopsCount;
+  int cycleMethod;
+  int interpolation;
+  float stops[16];
+  float4 colors[16];
 } Uniforms;
+
+float4 decodeColor(constant Uniforms& uniforms, int index);
+float decodeStop(constant Uniforms& uniforms, int index);
+float4 decodeMix(constant Uniforms& uniforms, float4 a, float4 b, float t);
 
 float scissorMask(constant Uniforms& uniforms, float2 p);
 float sdroundrect(constant Uniforms& uniforms, float2 pt);
 float strokeMask(constant Uniforms& uniforms, float2 ftcoord);
+
+float4 decodeColor(constant Uniforms& uniforms, int index) {
+  int cIndex = index >= uniforms.stopsCount ? (uniforms.stopsCount - 1) : index;
+  return uniforms.colors[cIndex];
+}
+float decodeStop(constant Uniforms& uniforms, int index) {
+  int cIndex = index >= uniforms.stopsCount ? (uniforms.stopsCount - 1) : index;
+  return uniforms.stops[cIndex];
+}
+float4 decodeMix(constant Uniforms& uniforms, float4 a, float4 b, float t) {
+  t = clamp(t, 0.0, 1.0);
+  if (uniforms.interpolation == 1) t = sqrt(1 - (1 - t) * (1 - t)); 
+  else if (uniforms.interpolation == 2) t = 1 - sqrt(1 - t * t); 
+  else if (uniforms.interpolation == 3) t = t * t * t * (t * (t * 6 - 15) + 10); 
+  return mix(a, b, t);
+}
 
 float scissorMask(constant Uniforms& uniforms, float2 p) {
   float2 sc = (abs((uniforms.scissorMat * float3(p, 1.0f)).xy)
@@ -99,9 +125,55 @@ fragment float4 fragmentShader(RasterizerData in [[stage_in]],
 
   if (uniforms.type == 0) {  // MNVG_SHADER_FILLGRAD
     float2 pt = (uniforms.paintMat * float3(in.fpos, 1.0)).xy;
-    float d = saturate((uniforms.feather * 0.5 + sdroundrect(uniforms, pt))
-                       / uniforms.feather);
-    float4 color = mix(uniforms.innerCol, uniforms.outerCol, d);
+    float d = clamp(saturate((uniforms.feather * 0.5 + sdroundrect(uniforms, pt)) / uniforms.feather), 0.0, 1.0);
+    
+    float4 color;
+    
+    // Multstop gradient
+    if (uniforms.multStopEnabled == 1) 
+    {
+      if (uniforms.cycleMethod == 1) // reflect
+        d = d - floor(d);
+      else if (uniforms.cycleMethod == 2) // repeat
+        d = (int(floor(d)) % 2 == 0) ? d - floor(d) : 1 - (d - floor(d));
+      
+      float prevStop = 0;
+      float stop = 0;
+      int stopIdx = 0;
+      
+      for (; stopIdx < uniforms.stopsCount; stopIdx++)
+      {
+        prevStop = stop;
+        stop = decodeStop(uniforms, stopIdx);
+        if (d <= stop)
+          break;
+      }
+      
+      if (stopIdx == 0)
+      {
+        color = decodeColor(uniforms, 0);
+      }
+      else if (stopIdx == uniforms.stopsCount)
+      {
+        color = decodeColor(uniforms, uniforms.stopsCount - 1);
+      }
+      else
+      {
+        float colorPos = 0;
+        
+        if (stop - prevStop > 0)
+        {
+          colorPos = clamp((d - prevStop) / (stop - prevStop), 0.0, 1.0);
+        }
+        
+        color = decodeMix(uniforms, decodeColor(uniforms, stopIdx - 1), decodeColor(uniforms, stopIdx), colorPos);
+      }
+    }
+    else 
+    {
+      color = mix(uniforms.innerCol, uniforms.outerCol, d);
+    }
+    
     return color * scissor;
   } else if (uniforms.type == 1) {  // MNVG_SHADER_FILLIMG
     float2 pt = (uniforms.paintMat * float3(in.fpos, 1.0)).xy / uniforms.extent;
@@ -149,9 +221,55 @@ fragment float4 fragmentShaderAA(RasterizerData in [[stage_in]],
 
   if (uniforms.type == 0) {  // MNVG_SHADER_FILLGRAD
     float2 pt = (uniforms.paintMat * float3(in.fpos, 1.0)).xy;
-    float d = saturate((uniforms.feather * 0.5 + sdroundrect(uniforms, pt))
-                        / uniforms.feather);
-    float4 color = mix(uniforms.innerCol, uniforms.outerCol, d);
+    float d = clamp(saturate((uniforms.feather * 0.5 + sdroundrect(uniforms, pt)) / uniforms.feather), 0.0, 1.0);
+    
+    float4 color;
+    
+    // Multstop gradient
+    if (uniforms.multStopEnabled == 1) 
+    {
+      if (uniforms.cycleMethod == 1) // reflect
+        d = d - floor(d);
+      else if (uniforms.cycleMethod == 2) // repeat
+        d = (int(floor(d)) % 2 == 0) ? d - floor(d) : 1 - (d - floor(d));
+      
+      float prevStop = 0;
+      float stop = 0;
+      int stopIdx = 0;
+      
+      for (; stopIdx < uniforms.stopsCount; stopIdx++)
+      {
+        prevStop = stop;
+        stop = decodeStop(uniforms, stopIdx);
+        if (d <= stop)
+          break;
+      }
+      
+      if (stopIdx == 0)
+      {
+        color = decodeColor(uniforms, 0);
+      }
+      else if (stopIdx == uniforms.stopsCount)
+      {
+        color = decodeColor(uniforms, uniforms.stopsCount - 1);
+      }
+      else
+      {
+        float colorPos = 0;
+        
+        if (stop - prevStop > 0)
+        {
+          colorPos = clamp((d - prevStop) / (stop - prevStop), 0.0, 1.0);
+        }
+        
+        color = decodeMix(uniforms, decodeColor(uniforms, stopIdx - 1), decodeColor(uniforms, stopIdx), colorPos);
+      }
+    }
+    else 
+    {
+      color = mix(uniforms.innerCol, uniforms.outerCol, d);
+    }
+    
     color *= scissor;
     color *= strokeAlpha;
     return color;
