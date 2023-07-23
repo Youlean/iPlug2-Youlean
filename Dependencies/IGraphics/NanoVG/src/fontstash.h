@@ -19,7 +19,7 @@
 #ifndef FONS_H
 #define FONS_H
 
-#define FONS_USE_FREETYPE
+//#define FONS_USE_FREETYPE
 #define FONTSTASH_IMPLEMENTATION
 
 #define FONS_INVALID -1
