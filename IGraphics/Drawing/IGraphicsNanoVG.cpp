@@ -511,17 +511,20 @@ void IGraphicsNanoVG::BeginFrame()
 
 void IGraphicsNanoVG::EndFrame()
 {
+  const float width = std::ceil(Width() * GetDrawScale());
+  const float height = std::ceil(Height() * GetDrawScale());
+  
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
+  nvgBeginFrame(mVG, width, height, GetScreenScale());
   
-  NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
+  NVGpaint img = nvgImagePattern(mVG, 0, 0, width, height, 0, mMainFrameBuffer->image, 1.0f);
 
   nvgSave(mVG);
   nvgResetTransform(mVG);
   nvgTranslate(mVG, mXTranslation, mYTranslation);
   nvgBeginPath(mVG);
-  nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
+  nvgRect(mVG, 0, 0, width, height);
   nvgFillPaint(mVG, img);
   nvgFill(mVG);
   nvgRestore(mVG);
