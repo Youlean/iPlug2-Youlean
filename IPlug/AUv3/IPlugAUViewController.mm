@@ -28,38 +28,51 @@
 #ifdef OS_IOS
 #pragma mark - iOS
 @implementation IPlugAUViewController
-#if PLUG_HAS_UI
-- (id) init
+
+- (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {
-  self = [super initWithNibName:@"IPlugAUViewController"
-                         bundle:[NSBundle bundleForClass:NSClassFromString(@"IPlugAUViewController")]];
+  self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    
+  // Open window if it is not alredy opened  
+  if (![self.audioUnit isWindowOpen])
+  {
+    [self.audioUnit openWindow:self.view];
+  }
+    
+  });
   
-  return self;
+  [self audioUnitInitialized];
+  
+  return self.audioUnit;
 }
 
+#if PLUG_HAS_UI
 - (void)viewWillLayoutSubviews
 {
-  CGRect drawableRect;
-  drawableRect = self.view.bounds;
-  
-  [_audioUnit resize:drawableRect];
+  if (self.audioUnit)
+  {
+    CGRect drawableRect;
+    drawableRect = self.view.bounds;
+    
+    [_audioUnit resize:drawableRect];
+  }
   
   [super viewWillLayoutSubviews];
 }
-
-//- (void)viewDidLayoutSubviews
-//{
-//  [super viewDidLayoutSubviews];
-//}
 
 -(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
   [super viewWillTransitionToSize: size withTransitionCoordinator: coordinator];
   
-  [coordinator animateAlongsideTransition: nil completion: ^void (id<UIViewControllerTransitionCoordinatorContext>)
-   {
-    [self.audioUnit layoutUI];
-  }];
+  if (self.audioUnit)
+  {
+    [coordinator animateAlongsideTransition: nil completion: ^void (id<UIViewControllerTransitionCoordinatorContext>)
+     {
+      [self.audioUnit layoutUI];
+    }];
+  }
 }
 
 - (void) viewDidLoad
@@ -67,42 +80,34 @@
   [super viewDidLoad];
 }
 
-- (void) viewWillAppear:(BOOL)animated
+- (void) viewWillAppear:(BOOL) animated
 {
   [super viewWillAppear:animated];
   
-  if(self.audioUnit)
+  if (self.audioUnit)
   {
-    UIView* view = [_audioUnit openWindow:self.view];
-
-    if(view == nil)
-      self.view = [[GenericUI alloc] initWithAUPlugin:self.audioUnit];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-    int viewWidth = (int) [self.audioUnit width];
-    int viewHeight = (int) [self.audioUnit height];
-    self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
-    self.view.backgroundColor = UIColor.blackColor;
-    
-    [self.audioUnit SetIsHostApp: NO];
-    });
+    [self.audioUnit openWindow:self.view];
   }
 }
 
-- (void) viewDidDisappear:(BOOL)animated
+- (void)viewDidAppear:(BOOL)animated
+{
+  [super viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+  [super viewWillDisappear:animated];
+}
+
+- (void) viewDidDisappear:(BOOL) animated
 {
   [super viewDidDisappear:animated];
   
-  if(self.audioUnit)
+  if (self.audioUnit)
   {
     [self.audioUnit closeWindow];
   }
-}
-
-#else // PLUG_HAS_UI==0
-
-- (void) beginRequestWithExtensionContext:(nonnull NSExtensionContext*) context
-{
 }
 
 #endif
@@ -114,20 +119,17 @@
 
 - (void) audioUnitInitialized
 {
-  //No-op
-}
-
-- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit
-{
-  _audioUnit = audioUnit;
-  [self audioUnitInitialized];
-}
-
-- (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
-{
-  self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
-
-  return self.audioUnit;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (self.audioUnit)
+    {
+      int width = (int) [self.audioUnit width];
+      int height = (int) [self.audioUnit height];
+      self.preferredContentSize = CGSizeMake(width, height);
+      self.view.backgroundColor = UIColor.blackColor;
+      
+      [self.audioUnit SetIsHostApp: NO];
+    }
+  });
 }
 
 @end

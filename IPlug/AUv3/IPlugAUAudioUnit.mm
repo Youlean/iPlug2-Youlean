@@ -917,6 +917,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   [parameterToChange setValue:exitingValue originator:mUIUpdateParamObserverToken atHostTime:0 eventType:AUParameterAutomationEventTypeRelease]; // TODO: atHostTime:0 ?
 }
 
+- (BOOL) isWindowOpen
+{
+  return (BOOL)mPlug->GetUI() && (BOOL)mPlug->GetUI()->GetWindow();
+}
+
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent
 {
   PLATFORM_VIEW* pView = (__bridge PLATFORM_VIEW*) mPlug->OpenWindow((__bridge void*) pParent);

@@ -309,7 +309,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     {
       NSString* pRootPath;
       
-      if(isAppExtension)
+      if(false)//isAppExtension)
         pRootPath = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
       else
         pRootPath = [pBundle bundlePath];
