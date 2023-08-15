@@ -279,67 +279,39 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   UIGestureRecognizerState state = recognizer.state;
 
   CGPoint translation = [recognizer translationInView:self];
+  CGPoint currentLocation = [recognizer locationInView:self];
   
   std::vector<IMouseInfo> points;
   IMouseInfo point;
   
   point.ms.L = true;
   
+  point.x = currentLocation.x;
+  point.y = currentLocation.y;
+  
   point.dX = translation.x;
   point.dY = translation.y;
+  
+  points.push_back(point);
    
   if(state == UIGestureRecognizerStateBegan)
-  {
-    CGPoint currentLocation = [recognizer locationInView:self];
-    
-    mPrevX = currentLocation.x;
-    mPrevY = currentLocation.y;
-    
-    point.x = mPrevX;
-    point.y = mPrevY;
-    
-    points.push_back(point);
-    
     mGraphics->OnMouseDown(points);
-  }
-  
+    
   if(state == UIGestureRecognizerStateChanged)
-  {
-    point.x = mPrevX;
-    point.y = mPrevY;
-    
-    points.push_back(point);
-    
     mGraphics->OnMouseDrag(points);
-  }
   
   if(state == UIGestureRecognizerStateEnded)
-  {
-    point.x = mPrevX;
-    point.y = mPrevY;
-    
-    points.push_back(point);
-    
     mGraphics->OnMouseUp(points);
-  }
-  
+    
   if(state == UIGestureRecognizerStateCancelled)
-  {
-    point.x = mPrevX;
-    point.y = mPrevY;
-    
-    points.push_back(point);
-    
     mGraphics->OnTouchCancelled(points);
-  }
   
   // Do something with the translation, which represents the scroll amount
-  NSLog(@"Translation: %@", NSStringFromCGPoint(translation));
+  //NSLog(@"Translation: %@", NSStringFromCGPoint(translation));
   
   // Reset the translation
   [recognizer setTranslation:CGPointZero inView:self];
 }
-
 
 - (void) onTouchEvent:(ETouchEvent) eventType withTouches:(NSSet*) touches withEvent:(UIEvent*) event
 {
@@ -978,12 +950,15 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   CGPoint pos = [touch locationInView:touch.view];
   
-  auto ds = mGraphics->GetDrawScale();
-
-  if(mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
-    return TRUE;
-  else
-    return FALSE;
+  if (mGraphics)
+  {
+    auto ds = mGraphics->GetDrawScale();
+    
+    if(mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
+      return TRUE;
+  }
+  
+  return FALSE;
 }
 
 - (UIView *)rootView
