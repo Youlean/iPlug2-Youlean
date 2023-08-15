@@ -218,6 +218,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   mColorPickerHandlerFunc = nullptr;
   
+  [self setupPanGestureRecognizer];
+  
   return self;
 }
 
@@ -257,6 +259,87 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer.drawableSize = drawableSize;
   #endif
 }
+
+- (void)setupPanGestureRecognizer 
+{
+  UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+  
+  if (@available(iOS 13.4, *)) 
+  {
+    panRecognizer.allowedScrollTypesMask = UIScrollTypeMaskAll;
+  } 
+  
+  panRecognizer.maximumNumberOfTouches = 0;
+  
+  [self addGestureRecognizer:panRecognizer];
+}
+
+- (void)handlePan:(UIPanGestureRecognizer *)recognizer
+{
+  UIGestureRecognizerState state = recognizer.state;
+
+  CGPoint translation = [recognizer translationInView:self];
+  
+  std::vector<IMouseInfo> points;
+  IMouseInfo point;
+  
+  point.ms.L = true;
+  
+  point.dX = translation.x;
+  point.dY = translation.y;
+   
+  if(state == UIGestureRecognizerStateBegan)
+  {
+    CGPoint currentLocation = [recognizer locationInView:self];
+    
+    mPrevX = currentLocation.x;
+    mPrevY = currentLocation.y;
+    
+    point.x = mPrevX;
+    point.y = mPrevY;
+    
+    points.push_back(point);
+    
+    mGraphics->OnMouseDown(points);
+  }
+  
+  if(state == UIGestureRecognizerStateChanged)
+  {
+    point.x = mPrevX;
+    point.y = mPrevY;
+    
+    points.push_back(point);
+    
+    mGraphics->OnMouseDrag(points);
+  }
+  
+  if(state == UIGestureRecognizerStateEnded)
+  {
+    point.x = mPrevX;
+    point.y = mPrevY;
+    
+    points.push_back(point);
+    
+    mGraphics->OnMouseUp(points);
+  }
+  
+  if(state == UIGestureRecognizerStateCancelled)
+  {
+    point.x = mPrevX;
+    point.y = mPrevY;
+    
+    points.push_back(point);
+    
+    mGraphics->OnTouchCancelled(points);
+  }
+  
+  // Do something with the translation, which represents the scroll amount
+  NSLog(@"Translation: %@", NSStringFromCGPoint(translation));
+  
+  // Reset the translation
+  [recognizer setTranslation:CGPointZero inView:self];
+}
+
 
 - (void) onTouchEvent:(ETouchEvent) eventType withTouches:(NSSet*) touches withEvent:(UIEvent*) event
 {
