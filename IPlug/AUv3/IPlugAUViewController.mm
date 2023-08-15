@@ -51,6 +51,9 @@
 #if PLUG_HAS_UI
 - (void)viewWillLayoutSubviews
 {
+  [CATransaction begin];
+  [CATransaction setDisableActions:YES];
+  
   if (self.audioUnit)
   {
     CGRect drawableRect;
@@ -60,10 +63,15 @@
   }
   
   [super viewWillLayoutSubviews];
+  
+  [CATransaction commit];
 }
 
 -(void) viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+  [CATransaction begin];
+  [CATransaction setDisableActions:YES];
+  
   [super viewWillTransitionToSize: size withTransitionCoordinator: coordinator];
   
   if (self.audioUnit)
@@ -73,6 +81,8 @@
       [self.audioUnit layoutUI];
     }];
   }
+  
+  [CATransaction commit];
 }
 
 - (void) viewDidLoad
