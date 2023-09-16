@@ -105,12 +105,6 @@ struct MNVGfragUniforms {
   float strokeThr;
   int texType;
   MNVGshaderType type;
-  int multStopEnabled;
-  int stopsCount;
-  int cycleMethod;
-  int interpolation;
-  float stops[16];
-  float colors[64];
 };
 typedef struct MNVGfragUniforms MNVGfragUniforms;
 
@@ -472,7 +466,7 @@ NVGcontext* nvgCreateMTL(void* metalLayer, int flags) {
 
   mtl.flags = flags;
 #if TARGET_OS_OSX || TARGET_OS_SIMULATOR
-  mtl.fragSize = sizeof(MNVGfragUniforms);//256;
+  mtl.fragSize = 256;
 #else
   mtl.fragSize = sizeof(MNVGfragUniforms);
 #endif  // TARGET_OS_OSX
@@ -775,8 +769,6 @@ enum MNVGTarget mnvgTarget() {
                  strokeThr:(float)strokeThr {
   MNVGtexture* tex = nil;
   float invxform[6];
-  
-  int s = sizeof(*frag);
 
   memset(frag, 0, sizeof(*frag));
 
@@ -830,26 +822,6 @@ enum MNVGTarget mnvgTarget() {
     frag->radius = paint->radius;
     frag->feather = paint->feather;
     nvgTransformInverse(invxform, paint->xform);
-    
-    if (paint->multStopEnabled)
-    {
-      frag->multStopEnabled = paint->multStopEnabled;
-      frag->stopsCount = paint->stopsCount;
-      frag->cycleMethod = paint->cycleMethod;
-      frag->interpolation = paint->interpolation;
-      
-      for (int i = 0; i < frag->stopsCount; i++)
-      {
-        frag->stops[i] = paint->stops[i];
-        
-        const vector_float4 color = mtlnvg__premulColor(paint->colors[i]);
-        
-        frag->colors[i * 4 + 0] = color.r;
-        frag->colors[i * 4 + 1] = color.g;
-        frag->colors[i * 4 + 2] = color.b;
-        frag->colors[i * 4 + 3] = color.a;
-      }
-    }
   }
 
   mtlnvg__xformToMat3x3(&frag->paintMat, invxform);
