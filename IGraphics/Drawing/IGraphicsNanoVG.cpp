@@ -449,7 +449,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {  
 #if defined IGRAPHICS_METAL
-  mVG = nvgCreateContext(pContext, NVG_ANTIALIAS | NVG_TRIPLE_BUFFER); //TODO: NVG_STENCIL_STROKES currently has issues
+  mVG = nvgCreateContext(pContext, NVG_ANTIALIAS | NVG_DOUBLE_BUFFER); //TODO: NVG_STENCIL_STROKES currently has issues
 #else
   mVG = nvgCreateContext(NVG_ANTIALIAS /*| NVG_STENCIL_STROKES*/);
 #endif

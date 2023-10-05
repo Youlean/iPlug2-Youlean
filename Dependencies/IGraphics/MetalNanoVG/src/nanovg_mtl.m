@@ -1415,6 +1415,11 @@ error:
     [self renderCancel];
     return;
   }
+  
+//  if (![_commandQueue commandBuffer]) {
+//    [self renderCancel];
+//    return;
+//  }
 
   id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
   id<MTLTexture> colorTexture = nil;;
