@@ -13,8 +13,13 @@
 			<string>Acme</string>
 			<key>name</key>
 			<string>AcmeInc: IPlugSurroundEffect</string>
+			<key>resourceUsage</key>
+			<dict>
+				<key>network.client</key>
+				<true/>
+			</dict>
 			<key>sandboxSafe</key>
-			<true/>
+			<false/>
 			<key>subtype</key>
 			<string>pJL5</string>
 			<key>type</key>
@@ -27,6 +32,8 @@
 	<string>0x00010000</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>IPlugSurroundEffect</string>
 	<key>CFBundleExecutable</key>
 	<string>IPlugSurroundEffect</string>
 	<key>CFBundleGetInfoString</key>

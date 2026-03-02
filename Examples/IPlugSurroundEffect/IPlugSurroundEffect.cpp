@@ -17,6 +17,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 2: APIBusTypes->Add(kAudioChannelLayoutTag_Stereo); break;
     case 6: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_5_1); break;
     case 8: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_7_1); break;
+    case 10: APIBusTypes->Add(kAudioChannelLayoutTag_Logic_Atmos_7_1_2); break;
     default: APIBusTypes->Add(kAudioChannelLayoutTag_DiscreteInOrder | numChans); break;
   }
   return 0;

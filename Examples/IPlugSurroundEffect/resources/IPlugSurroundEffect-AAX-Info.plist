@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>IPlugSurroundEffect</string>
 	<key>CFBundleExecutable</key>
 	<string>IPlugSurroundEffect</string>
 	<key>CFBundleGetInfoString</key>

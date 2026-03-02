@@ -33,20 +33,20 @@
     <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
     <AAX_SDK Condition="'$(AAX_SDK)'==''">$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
-    <VST2_32_HOST_PATH Condition="'$(VST2_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL.exe</VST2_32_HOST_PATH>
-    <VST2_64_HOST_PATH Condition="'$(VST2_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL64.exe</VST2_64_HOST_PATH>
-	<FRUITY_32_HOST_PATH Condition="'$(FRUITY_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL.exe</FRUITY_32_HOST_PATH>
-    <FRUITY_64_HOST_PATH Condition="'$(FRUITY_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL64.exe</FRUITY_64_HOST_PATH>
-    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL.exe</VST3_32_HOST_PATH>
-    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL64.exe</VST3_64_HOST_PATH>
-    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL.exe</VST3_32_HOST_PATH>
-    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\FL64.exe</VST3_64_HOST_PATH>
+    <VST2_32_HOST_PATH Condition="'$(VST2_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL.exe</VST2_32_HOST_PATH>
+    <VST2_64_HOST_PATH Condition="'$(VST2_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL64.exe</VST2_64_HOST_PATH>
+	<FRUITY_32_HOST_PATH Condition="'$(FRUITY_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL.exe</FRUITY_32_HOST_PATH>
+    <FRUITY_64_HOST_PATH Condition="'$(FRUITY_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL64.exe</FRUITY_64_HOST_PATH>
+    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL.exe</VST3_32_HOST_PATH>
+    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL64.exe</VST3_64_HOST_PATH>
+    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL.exe</VST3_32_HOST_PATH>
+    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\FL64.exe</VST3_64_HOST_PATH>
     <VST3_32_PATH Condition="'$(VST3_32_PATH)'==''">$(CommonProgramFiles)\VST3</VST3_32_PATH>
     <VST3_64_PATH Condition="'$(VST3_64_PATH)'==''">$(CommonProgramW6432)\VST3</VST3_64_PATH>
     <VST2_32_PATH Condition="'$(VST2_32_PATH)'==''">$(ProgramFiles)\VstPlugins</VST2_32_PATH>
     <VST2_64_PATH Condition="'$(VST2_64_PATH)'==''">$(ProgramW6432)\VstPlugins</VST2_64_PATH>
-	<FRUITY_32_PATH Condition="'$(FRUITY_32_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\Plugins\Fruity\Effects</FRUITY_32_PATH>
-    <FRUITY_64_PATH Condition="'$(FRUITY_64_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 20\Plugins\Fruity\Effects</FRUITY_64_PATH>
+	<FRUITY_32_PATH Condition="'$(FRUITY_32_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\Plugins\Fruity\Effects</FRUITY_32_PATH>
+    <FRUITY_64_PATH Condition="'$(FRUITY_64_PATH)'==''">$(ProgramW6432)\Image-Line\FL Studio 21\Plugins\Fruity\Effects</FRUITY_64_PATH>
     <AAX_32_PATH Condition="'$(AAX_32_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH Condition="'$(AAX_64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>

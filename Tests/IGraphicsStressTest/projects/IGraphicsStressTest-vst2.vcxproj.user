@@ -19,11 +19,13 @@
     <LocalDebuggerCommand>$(VST2_64_HOST_PATH)</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>$(VST2_64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArgumentsHistory>C:\Users\julij\Documents\Developer\FL_Projects\iPlug2Test.flp|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>$(VST2_64_HOST_PATH)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>$(VST2_64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArgumentsHistory>C:\Users\julij\Documents\Developer\FL_Projects\iPlug2Test.flp|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
     <LocalDebuggerCommand>$(VST2_64_HOST_PATH)</LocalDebuggerCommand>

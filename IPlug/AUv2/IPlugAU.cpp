@@ -1107,7 +1107,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 
 OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
                                      UInt32* pDataSize, const void* pData)
-{
+{  
   Trace(TRACELOC, "(%d:%s):(%d:%s):%d", propID, AUPropertyStr(propID), scope, AUScopeStr(scope), element);
 
   InformListeners(propID, scope);
@@ -1164,6 +1164,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_SampleRate:                  // 2,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       SetSampleRate(*((Float64*) pData));
       OnReset();
       return noErr;
@@ -1174,6 +1179,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_CPULoad);                   // 6,
     case kAudioUnitProperty_StreamFormat:                // 8,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       AudioStreamBasicDescription* pASBD = (AudioStreamBasicDescription*) pData;
       int nHostChannels = pASBD->mChannelsPerFrame;
       BusChannels* pBus = GetBus(scope, element);
@@ -1212,6 +1222,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SupportedNumChannels);      // 13,
     case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       SetBlockSize(*((UInt32*) pData));
       ResizeScratchBuffers();
       OnReset();
@@ -1220,10 +1235,32 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+    case kAudioUnitProperty_AudioChannelLayout: // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+    {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+
+      AudioChannelLayout layout;// = (AudioChannelLayout*)pData;
+      
+      memcpy(&layout, pData, sizeof(AudioChannelLayout));
+      
+      //AudioChannelDescription d1 = layout.mChannelDescriptions[0];
+      //AudioChannelDescription d2 = layout.mChannelDescriptions[1];
+      
+      AudioChannelLayoutTag channelTag = *(AudioChannelLayoutTag*)pData;
+      const unsigned channelID = channelTag>>16;
+      return kAudioUnitErr_InvalidProperty;
+    }
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       const bool bypassed = *((UInt32*) pData) != 0;
       SetBypassed(bypassed);
       
@@ -1255,6 +1292,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_RenderQuality);             // 26,
     case kAudioUnitProperty_HostCallbacks:              // 27,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       ASSERT_SCOPE(kAudioUnitScope_Global);
       memcpy(&mHostCallbacks, pData, sizeof(HostCallbackInfo));
       return noErr;
@@ -1268,12 +1310,22 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_CurrentPreset:               // 28,
     case kAudioUnitProperty_PresentPreset:               // 36,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       int presetIdx = ((AUPreset*) pData)->presetNumber;
       RestorePreset(presetIdx);
       return noErr;
     }
     case kAudioUnitProperty_OfflineRender:                // 37,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       const bool renderingOffline = (*((UInt32*) pData) != 0);
       SetRenderingOffline(renderingOffline);
       return noErr;
@@ -1285,6 +1337,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_DependentParameters);       // 45,
     case kAudioUnitProperty_AUHostIdentifier:            // 46,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       if (GetHost() == kHostUninit)
       {
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
@@ -1299,6 +1356,11 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo);   // 47,
     case kAudioUnitProperty_MIDIOutputCallback:         // 48,
     {
+      if (!pData)
+      {
+        return kAudioUnitErr_InvalidProperty;
+      }
+      
       mMidiCallback = *((AUMIDIOutputCallbackStruct*) pData);
       return noErr;
     }

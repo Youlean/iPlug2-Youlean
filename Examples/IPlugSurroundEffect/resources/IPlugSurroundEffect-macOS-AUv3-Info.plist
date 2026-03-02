@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>IPlugSurroundEffect</string>
 	<key>CFBundleExecutable</key>
 	<string>IPlugSurroundEffect</string>
 	<key>CFBundleGetInfoString</key>
@@ -27,7 +29,7 @@
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>AudioComponentBundle</key>
-			<string>com.AcmeInc.app.IPlugSurroundEffect.AUv3Framework</string>
+			<string>com.Youlean.app.IPlugSurroundEffect.AUv3Framework</string>
 			<key>AudioComponents</key>
 			<array>
 				<dict>

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # this script will create/update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder or the bundle depending on PLUG_SHARED_RESOURCES
 
@@ -10,6 +10,14 @@ kAudioUnitType_MIDIProcessor    = "aumi"
 DONT_COPY = ("")
 
 import plistlib, os, datetime, fileinput, glob, sys, string, shutil
+
+def readPlist(path):
+    with open(path, 'rb') as fp:
+        return plistlib.load(fp)
+        
+def writePlist(data, path):
+  with open(path, 'wb') as fp:
+      plistlib.dump(data, fp)
 
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
@@ -24,44 +32,45 @@ def main():
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(os.path.join(os.getcwd(), IPLUG2_ROOT +  '/common-mac.xcconfig'))
 
-  CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT_STR']
+  CFBundleGetInfoString = config['PLUG_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT_STR']
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
   LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
-  print "Copying resources ..."
+  print ("Copying resources ...")
 
   if config['PLUG_SHARED_RESOURCES']:
-    dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
+    dst = os.path.expanduser("~") + "/Music/" + config['PLUG_NAME'] + "/Resources"
   else:
     dst = os.environ["TARGET_BUILD_DIR"] + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
 
   if os.path.exists(dst) == False:
-    os.makedirs(dst + "/", 0755 )
+    os.makedirs(dst + "/", 0o0755 )
 
   if os.path.exists(projectpath + "/resources/img/"):
     imgs = os.listdir(projectpath + "/resources/img/")
     for img in imgs:
-      print "copying " + img + " to " + dst
+      print ("copying " + img + " to " + dst)
       shutil.copy(projectpath + "/resources/img/" + img, dst)
 
   if os.path.exists(projectpath + "/resources/fonts/"):
     fonts = os.listdir(projectpath + "/resources/fonts/")
     for font in fonts:
-      print "copying " + font + " to " + dst
+      print ("copying " + font + " to " + dst)
       shutil.copy(projectpath + "/resources/fonts/" + font, dst)
 
-  print "Processing Info.plist files..."
+  print ("Processing Info.plist files...")
 
 # VST3
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-VST3-Info.plist"
-  vst3 = plistlib.readPlist(plistpath)
-  vst3['CFBundleExecutable'] = config['BUNDLE_NAME']
+  vst3 = readPlist(plistpath)
+  vst3['CFBundleExecutable'] = config['PLUG_NAME']
   vst3['CFBundleGetInfoString'] = CFBundleGetInfoString
   vst3['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".vst3." + config['BUNDLE_NAME'] + ""
-  vst3['CFBundleName'] = config['BUNDLE_NAME']
+  vst3['CFBundleName'] = config['PLUG_NAME']
+  vst3['CFBundleDisplayName'] = config['PLUG_NAME']
   vst3['CFBundleVersion'] = CFBundleVersion
   vst3['CFBundleShortVersionString'] = CFBundleVersion
   vst3['LSMinimumSystemVersion'] = LSMinimumSystemVersion
@@ -69,16 +78,17 @@ def main():
   vst3['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   vst3['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  plistlib.writePlist(vst3, plistpath)
+  writePlist(vst3, plistpath)
 
 # VST2
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-VST2-Info.plist"
-  vst2 = plistlib.readPlist(plistpath)
-  vst2['CFBundleExecutable'] = config['BUNDLE_NAME']
+  vst2 = readPlist(plistpath)
+  vst2['CFBundleExecutable'] = config['PLUG_NAME']
   vst2['CFBundleGetInfoString'] = CFBundleGetInfoString
   vst2['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".vst." + config['BUNDLE_NAME'] + ""
-  vst2['CFBundleName'] = config['BUNDLE_NAME']
+  vst2['CFBundleName'] = config['PLUG_NAME']
+  vst2['CFBundleDisplayName'] = config['PLUG_NAME']
   vst2['CFBundleVersion'] = CFBundleVersion
   vst2['CFBundleShortVersionString'] = CFBundleVersion
   vst2['LSMinimumSystemVersion'] = LSMinimumSystemVersion
@@ -86,16 +96,17 @@ def main():
   vst2['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   vst2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  plistlib.writePlist(vst2, plistpath)
+  writePlist(vst2, plistpath)
 
 # AUDIOUNIT v2
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-AU-Info.plist"
-  auv2 = plistlib.readPlist(plistpath)
-  auv2['CFBundleExecutable'] = config['BUNDLE_NAME']
+  auv2 = readPlist(plistpath)
+  auv2['CFBundleExecutable'] = config['PLUG_NAME']
   auv2['CFBundleGetInfoString'] = CFBundleGetInfoString
   auv2['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".audiounit." + config['BUNDLE_NAME'] + ""
-  auv2['CFBundleName'] = config['BUNDLE_NAME']
+  auv2['CFBundleName'] = config['PLUG_NAME']
+  auv2['CFBundleDisplayName'] = config['PLUG_NAME']
   auv2['CFBundleVersion'] = CFBundleVersion
   auv2['CFBundleShortVersionString'] = CFBundleVersion
   auv2['LSMinimumSystemVersion'] = LSMinimumSystemVersion
@@ -122,9 +133,12 @@ def main():
   auv2['AudioComponents'][0]['subtype'] = config['PLUG_UNIQUE_ID']
   auv2['AudioComponents'][0]['type'] = COMPONENT_TYPE
   auv2['AudioComponents'][0]['version'] = config['PLUG_VERSION_INT']
-  auv2['AudioComponents'][0]['sandboxSafe'] = True
+  auv2['AudioComponents'][0]['sandboxSafe'] = False
+  
+  auv2['AudioComponents'][0]['resourceUsage'] = {}
+  auv2['AudioComponents'][0]['resourceUsage']['network.client'] = True
 
-  plistlib.writePlist(auv2, plistpath)
+  writePlist(auv2, plistpath)
 
 # AUDIOUNIT v3
 
@@ -134,18 +148,19 @@ def main():
     NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit"
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-macOS-AUv3-Info.plist"
-  auv3 = plistlib.readPlist(plistpath)
-  auv3['CFBundleExecutable'] = config['BUNDLE_NAME']
+  auv3 = readPlist(plistpath)
+  auv3['CFBundleExecutable'] = config['PLUG_NAME']
   auv3['CFBundleGetInfoString'] = CFBundleGetInfoString
   auv3['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".app." + config['BUNDLE_NAME'] + ".AUv3"
-  auv3['CFBundleName'] = config['BUNDLE_NAME']
+  auv3['CFBundleName'] = config['PLUG_NAME']
+  auv3['CFBundleDisplayName'] = config['PLUG_NAME']
   auv3['CFBundleVersion'] = CFBundleVersion
   auv3['CFBundleShortVersionString'] = CFBundleVersion
   auv3['LSMinimumSystemVersion'] = "10.12.0"
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(
-                               AudioComponentBundle = "com.AcmeInc.app." + config['BUNDLE_NAME'] + ".AUv3Framework",
+                               AudioComponentBundle = "com.Youlean.app." + config['BUNDLE_NAME'] + ".AUv3Framework",
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
@@ -166,31 +181,33 @@ def main():
   else:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"
 
-  plistlib.writePlist(auv3, plistpath)
+  writePlist(auv3, plistpath)
 
 # AAX
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-AAX-Info.plist"
-  aax = plistlib.readPlist(plistpath)
-  aax['CFBundleExecutable'] = config['BUNDLE_NAME']
+  aax = readPlist(plistpath)
+  aax['CFBundleExecutable'] = config['PLUG_NAME']
   aax['CFBundleGetInfoString'] = CFBundleGetInfoString
   aax['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".aax." + config['BUNDLE_NAME'] + ""
-  aax['CFBundleName'] = config['BUNDLE_NAME']
+  aax['CFBundleName'] = config['PLUG_NAME']
+  aax['CFBundleDisplayName'] = config['PLUG_NAME']
   aax['CFBundleVersion'] = CFBundleVersion
   aax['CFBundleShortVersionString'] = CFBundleVersion
   aax['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   aax['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  plistlib.writePlist(aax, plistpath)
+  writePlist(aax, plistpath)
 
 # APP
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-macOS-Info.plist"
-  macOSapp = plistlib.readPlist(plistpath)
-  macOSapp['CFBundleExecutable'] = config['BUNDLE_NAME']
+  macOSapp = readPlist(plistpath)
+  macOSapp['CFBundleExecutable'] = config['PLUG_NAME']
   macOSapp['CFBundleGetInfoString'] = CFBundleGetInfoString
   macOSapp['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".app." + config['BUNDLE_NAME'] + ""
-  macOSapp['CFBundleName'] = config['BUNDLE_NAME']
+  macOSapp['CFBundleName'] = config['PLUG_NAME']
+  macOSapp['CFBundleDisplayName'] = config['PLUG_NAME']
   macOSapp['CFBundleVersion'] = CFBundleVersion
   macOSapp['CFBundleShortVersionString'] = CFBundleVersion
   macOSapp['LSMinimumSystemVersion'] = LSMinimumSystemVersion
@@ -203,7 +220,7 @@ def main():
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
   macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
 
-  plistlib.writePlist(macOSapp, plistpath)
+  writePlist(macOSapp, plistpath)
 
 if __name__ == '__main__':
   main()
